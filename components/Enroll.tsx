@@ -2,7 +2,7 @@
 import { useState, useRef } from "react";
 import { toPng } from "html-to-image";
 
-export default function Letter() {
+export default function AdmissionLetter({name}:{name: string}) {
   const [isOpen, setIsOpen] = useState(false);
   const letterRef = useRef<HTMLDivElement>(null);
 
@@ -174,7 +174,7 @@ export default function Letter() {
               OFFER OF ADMISSION
             </h1>
             <div className="text-left space-y-4 font-serif text-[#3b2b0b] opacity-90">
-              <p>Dear Student,</p>
+              <p>Dear {name},</p>
               <p>
                 We are pleased to inform you that you have been accepted at
                 Hogwarts School of Witchcraft and Wizardry. Please find enclosed
