@@ -26,8 +26,11 @@ const eb_garamond = EB_Garamond({
 
 
 export const metadata: Metadata = {
-  title: "Harry Potter Event",
-  description: "Goblet of Fire Event Page",
+  title: "WiOS - Harry Potter",
+  description: "Goblet of Fire",
+  icons:{
+    icon:"/site.jpg"
+  }
 };
 
 export default function RootLayout({
