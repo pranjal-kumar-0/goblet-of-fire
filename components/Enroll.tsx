@@ -181,8 +181,8 @@ export default function AdmissionLetter({name}:{name: string}) {
                 a list of all necessary books and equipment.
               </p>
               <p>
-                Term begins on September 1. We await your owl by no later than
-                July 31.
+                Term begins on September 27. We await your owl by no later than
+                September 26.
               </p>
               <p className="mt-8">Yours sincerely,</p>
               <div className="ml-8">
