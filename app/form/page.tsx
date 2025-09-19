@@ -1,5 +1,7 @@
 "use client";
 import { useState, ChangeEvent, FormEvent } from "react";
+import axios from "axios"
+import AdmissionLetter from "@/components/Enroll";
 
 export default function Letter() {
     const [formData, setFormData] = useState({
@@ -9,6 +11,8 @@ export default function Letter() {
         regNum: "",
         bloodStatus: "",
     });
+    const [isadmission, setIsAdmission] = useState(false)
+    const [name, setName] = useState("")
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -18,15 +22,35 @@ export default function Letter() {
         }));
     };
 
-    const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async(e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("Form Submitted:", formData);
-        window.location.href = "/enroll";
+        // window.location.href = "/enroll";
+
+        await axios.post('/api/add', 
+            formData, {
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            }
+          )
+          .then(function (response) {
+            setName(formData.fullName)
+            console.log(response);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+        setIsAdmission(true)
     };
 
+    // const content = () => {
+        
+    // }
 
-    return (
-        <div className="min-h-screen bg-gradient-to-b from-black via-red-950 to-black flex items-center justify-center px-4 py-8 font-serif">
+    const Form = () => {
+        return(
+            <div className="min-h-screen bg-gradient-to-b from-black via-red-950 to-black flex items-center justify-center px-4 py-8 font-serif">
             <div className="relative max-w-2xl w-full">
                 {/*  Wax Seal */}
                 <div className="absolute -top-6 -left-6 sm:-top-8 sm:-left-8 w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-yellow-400 to-red-700 flex items-center justify-center shadow-[0_0_25px_5px_rgba(255,215,0,0.9)] animate-pulse z-20">
@@ -145,6 +169,14 @@ export default function Letter() {
                 </div>
             </div>
         </div>
+        )
+    }
+
+    return (
+        <div>
+             {isadmission? <AdmissionLetter name={name}/>: <Form/>}
+        </div>
+       
     );
 }
 
