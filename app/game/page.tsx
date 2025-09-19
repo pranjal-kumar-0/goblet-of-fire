@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-
+// game
 export default function Game() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-black via-blue-950 to-black flex items-center justify-center px-4 py-8 font-serif">
