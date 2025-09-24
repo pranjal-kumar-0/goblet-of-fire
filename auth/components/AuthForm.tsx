@@ -15,23 +15,16 @@ export function AuthForm() {
 
   const isVitStudent = email.endsWith('@vitapstudent.ac.in');
 
-  const handleSignup = async () => {
-    try {
-      await signup(email, password);
-      showMessage("Account created successfully!", "success");
-      setEmail("");
-      setPassword("");
-    } catch (error: any) {
-      showMessage(error.message, "error");
-    }
+  const clearForm = () => {
+    setEmail("");
+    setPassword("");
   };
 
-  const handleLogin = async () => {
+  const handleAuth = async (action: 'signup' | 'login') => {
     try {
-      await login(email, password);
-      showMessage("Logged in successfully!", "success");
-      setEmail("");
-      setPassword("");
+      await (action === 'signup' ? signup(email, password) : login(email, password));
+      showMessage(`${action === 'signup' ? 'Account created' : 'Logged in'} successfully!`, "success");
+      clearForm();
     } catch (error: any) {
       showMessage(error.message, "error");
     }
@@ -47,10 +40,8 @@ export function AuthForm() {
   };
 
   const handleDeleteAccount = async () => {
-    if (!confirm("Are you sure? This will delete your account and all your scores.")) {
-      return;
-    }
-
+    if (!confirm("Are you sure? This will delete your account and all your scores.")) return;
+    
     try {
       await deleteAccount();
       showMessage("Account and scores deleted successfully.", "success");
@@ -167,14 +158,14 @@ export function AuthForm() {
           <div className="flex flex-col space-y-3">
             {!isVitStudent && (
               <button 
-                onClick={handleSignup}
+                onClick={() => handleAuth('signup')}
                 className="w-full px-6 py-3 text-lg font-['Cinzel_Decorative'] text-black bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 rounded-full shadow-[0_0_20px_rgba(255,215,0,0.8)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,215,0,1)] transition-all duration-300 border-2 border-yellow-600/50"
               >
                 Join the Order
               </button>
             )}
             <button 
-              onClick={handleLogin}
+              onClick={() => handleAuth('login')}
               className="w-full px-6 py-3 text-lg font-['Cinzel_Decorative'] text-black bg-gradient-to-r from-green-500 via-green-300 to-green-500 rounded-full shadow-[0_0_20px_rgba(0,255,0,0.6)] hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,0,0.8)] transition-all duration-300 border-2 border-green-600/50"
             >
               Enter the Castle

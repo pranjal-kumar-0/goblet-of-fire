@@ -31,7 +31,7 @@ export default function LeaderboardPage() {
           {/* Footer with magical quote */}
           <div className="mt-8 text-center">
             <p className="text-yellow-300/70 italic font-serif text-sm sm:text-base">
-              "Fame is a fickle friend, Harry. Celebrity is as celebrity does."
+              &ldquo;Fame is a fickle friend, Harry. Celebrity is as celebrity does.&rdquo;
             </p>
             <p className="text-yellow-300/50 text-xs mt-2">- Gilderoy Lockhart</p>
           </div>

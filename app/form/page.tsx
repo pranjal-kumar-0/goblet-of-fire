@@ -51,8 +51,9 @@ export default function Letter() {
 
             setName(formData.fullName);
             setIsAdmission(true);
-        } catch (error: any) {
-            setError(error.response?.data?.message || "An unexpected error occurred");
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }

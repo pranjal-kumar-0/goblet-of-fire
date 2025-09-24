@@ -21,7 +21,7 @@ export default function AdmissionLetter({name}:{name: string}) {
         // Skip external fonts and images to avoid CORS issues
         skipFonts: true,
         // Filter out external resources that cause CORS issues
-        filter: (node: any) => {
+        filter: (node: Element) => {
           // Skip external stylesheets and fonts that cause CORS issues
           if (node.tagName === 'LINK') {
             const href = node.getAttribute('href');
