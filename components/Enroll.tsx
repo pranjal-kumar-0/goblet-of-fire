@@ -226,7 +226,7 @@ export default function AdmissionLetter({name}:{name: string}) {
         </div>
       </div>
 
-      {/* Magical Floating Button */}
+      {/* Floating Button */}
       <button
         onClick={handleDownload}
         className="fixed bottom-6 right-6 px-5 py-2 text-sm font-serif text-white rounded-full shadow-lg transition transform hover:scale-110 bg-gradient-to-r from-yellow-700 to-yellow-900"

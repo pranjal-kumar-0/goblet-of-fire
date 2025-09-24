@@ -18,6 +18,11 @@ export default function Home() {
             Accept the Challenge
           </button>
         </Link>
+        <Link href={"/game"}>
+          <button className="mt-6 px-6 py-3 text-lg sm:text-xl font-['Cinzel_Decorative'] text-black bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 rounded-full shadow-[0_0_15px_rgba(255,255,0,0.9)] hover:scale-105 hover:shadow-[0_0_25px_rgba(255,255,0,1)] transition-all duration-300">
+            Start the Challenge
+          </button>
+        </Link>
       </div>
     </div>
   );
