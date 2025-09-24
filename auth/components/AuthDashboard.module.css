@@ -1,0 +1,6 @@
+/* AuthDashboard.module.css */
+
+.authContainer {
+  background-color: #4f2800;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.5);
+}

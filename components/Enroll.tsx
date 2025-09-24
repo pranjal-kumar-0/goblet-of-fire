@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import { toPng } from "html-to-image";
+import styles from "./Enroll.module.css";
 
 export default function AdmissionLetter({name}:{name: string}) {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,7 +17,20 @@ export default function AdmissionLetter({name}:{name: string}) {
     try {
       const dataUrl = await toPng(card, {
         cacheBust: true,
-        backgroundColor: "#fdf6e3", 
+        backgroundColor: "#fdf6e3",
+        // Skip external fonts and images to avoid CORS issues
+        skipFonts: true,
+        // Filter out external resources that cause CORS issues
+        filter: (node: any) => {
+          // Skip external stylesheets and fonts that cause CORS issues
+          if (node.tagName === 'LINK') {
+            const href = node.getAttribute('href');
+            if (href?.includes('fonts.googleapis.com') || href?.includes('transparenttextures.com')) {
+              return false;
+            }
+          }
+          return true;
+        }
       });
 
       const link = document.createElement("a");
@@ -25,6 +39,8 @@ export default function AdmissionLetter({name}:{name: string}) {
       link.click();
     } catch (err) {
       console.error("Error generating image:", err);
+      // Fallback: show a message to the user
+      alert("Unable to download image due to browser security restrictions. You can take a screenshot instead!");
     }
 
     card.style.clipPath = originalClipPath; 
@@ -32,97 +48,40 @@ export default function AdmissionLetter({name}:{name: string}) {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-8 relative"
-      style={{
-        backgroundColor: "#4a2f0a",
-        backgroundImage:
-          "url('https://www.transparenttextures.com/patterns/old-wall.png')",
-      }}
+      className={`min-h-screen flex flex-col items-center justify-center px-4 py-8 relative ${styles.container}`}
     >
       {/* Letter */}
       <div className="relative w-full max-w-2xl" ref={letterRef}>
         <div
-          className={`relative p-8 shadow-2xl border-2 border-[#b2925a] transition-all duration-1000 ${
+          className={`relative p-8 shadow-2xl border-2 border-[#b2925a] transition-all duration-1000 ${styles.letter} ${
             isOpen ? "-translate-y-16" : ""
           }`}
-          style={{
-            backgroundImage: `
-              url('https://www.transparenttextures.com/patterns/cardboard-flat.png'),
-              linear-gradient(#f9f4e1, #f6ecd0)
-            `,
-            backgroundBlendMode: "multiply",
-            clipPath:
-              "polygon(5% 0, 95% 0, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0 95%, 0 5%)",
-            boxShadow:
-              "inset 0 0 40px rgba(0,0,0,0.4), inset 0 0 100px rgba(0,0,0,0.2), 0 8px 25px rgba(0,0,0,0.5)",
-          }}
         >
           {/* Decorative stains */}
           <div
-            className="absolute top-6 left-8 w-24 h-24 opacity-20 pointer-events-none"
-            style={{
-              backgroundImage:
-                "url('https://www.transparenttextures.com/patterns/coffee-stains.png')",
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              transform: "rotate(-10deg)",
-            }}
+            className={`absolute top-6 left-8 w-24 h-24 opacity-20 pointer-events-none ${styles.stain1}`}
           />
           <div
-            className="absolute bottom-6 right-8 w-28 h-28 opacity-20 pointer-events-none"
-            style={{
-              backgroundImage:
-                "url('https://www.transparenttextures.com/patterns/coffee-stains.png')",
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              transform: "rotate(15deg)",
-            }}
+            className={`absolute bottom-6 right-8 w-28 h-28 opacity-20 pointer-events-none ${styles.stain2}`}
           />
           <div
-            className="absolute top-1/4 left-1/4 w-16 h-16 opacity-15 pointer-events-none"
-            style={{
-              backgroundImage:
-                "url('https://www.transparenttextures.com/patterns/coffee-stains.png')",
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              transform: "rotate(45deg)",
-            }}
+            className={`absolute top-1/4 left-1/4 w-16 h-16 opacity-15 pointer-events-none ${styles.stain3}`}
           />
           <div
-            className="absolute bottom-1/3 right-1/3 w-20 h-20 opacity-10 pointer-events-none"
-            style={{
-              backgroundImage:
-                "url('https://www.transparenttextures.com/patterns/coffee-stains.png')",
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              transform: "rotate(-30deg)",
-            }}
+            className={`absolute bottom-1/3 right-1/3 w-20 h-20 opacity-10 pointer-events-none ${styles.stain4}`}
           />
 
           {/* Paper texture overlay */}
           <div
-            className="absolute inset-0 pointer-events-none opacity-15"
-            style={{
-              backgroundImage:
-                "url('https://www.transparenttextures.com/patterns/paper-fibers.png')",
-              mixBlendMode: "multiply",
-            }}
+            className={`absolute inset-0 pointer-events-none opacity-15 ${styles.paperTexture}`}
           />
 
           {/* Burn marks on edges */}
           <div
-            className="absolute top-0 left-0 w-full h-4 opacity-20 pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 100%)",
-            }}
+            className={`absolute top-0 left-0 w-full h-4 opacity-20 pointer-events-none ${styles.burnTop}`}
           />
           <div
-            className="absolute bottom-0 left-0 w-full h-4 opacity-20 pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 100%)",
-            }}
+            className={`absolute bottom-0 left-0 w-full h-4 opacity-20 pointer-events-none ${styles.burnBottom}`}
           />
 
           {/* Hogwarts Crest */}
@@ -177,8 +136,10 @@ export default function AdmissionLetter({name}:{name: string}) {
               <p>Dear {name},</p>
               <p>
                 We are pleased to inform you that you have been accepted at
-                Hogwarts School of Witchcraft and Wizardry. Please find enclosed
-                a list of all necessary books and equipment.
+                Hogwarts School of Witchcraft and Wizardry. A magical sign-in link has been sent to your email.
+              </p>
+              <p>
+                To access the magical authentication portal, please check your email and click the magic link to sign in without needing a password. The link will redirect you to our secure authentication system.
               </p>
               <p>
                 Term begins on September 1. We await your owl by no later than
@@ -205,23 +166,14 @@ export default function AdmissionLetter({name}:{name: string}) {
 
         {/* Wax Seal */}
         <div
-          className={`absolute top-4 right-4 w-14 h-14 bg-red-800 rounded-full flex items-center justify-center cursor-pointer transition-transform duration-700 border-4 border-red-900 shadow-lg ${
+          className={`absolute top-4 right-4 w-14 h-14 bg-red-800 rounded-full flex items-center justify-center cursor-pointer transition-transform duration-700 border-4 border-red-900 shadow-lg ${styles.waxSeal} ${
             isOpen ? "rotate-180" : ""
           }`}
           onClick={() => setIsOpen(!isOpen)}
-          style={{
-            backgroundImage:
-              "url('https://www.transparenttextures.com/patterns/45-degree-fabric-dark.png')",
-            backgroundBlendMode: "overlay",
-          }}
         >
           <span className="text-white font-serif text-sm">W</span>
           <div
-            className="absolute inset-0 rounded-full opacity-30"
-            style={{
-              backgroundImage:
-                "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4) 0%, transparent 20%)",
-            }}
+            className={`absolute inset-0 rounded-full opacity-30 ${styles.sealGlow}`}
           />
         </div>
       </div>
@@ -229,8 +181,7 @@ export default function AdmissionLetter({name}:{name: string}) {
       {/* Magical Floating Button */}
       <button
         onClick={handleDownload}
-        className="fixed bottom-6 right-6 px-5 py-2 text-sm font-serif text-white rounded-full shadow-lg transition transform hover:scale-110 bg-gradient-to-r from-yellow-700 to-yellow-900"
-        style={{ boxShadow: "0 0 15px 3px rgba(255,215,0,0.7)" }}
+        className={`fixed bottom-6 right-6 px-5 py-2 text-sm font-serif text-white rounded-full shadow-lg transition transform hover:scale-110 bg-gradient-to-r from-yellow-700 to-yellow-900 ${styles.saveButton}`}
       >
         Save Letter
       </button>

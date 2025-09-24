@@ -45,6 +45,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable} ${eb_garamond.variable} antialiased`}
+        suppressHydrationWarning={true}
       >
         {children}
       </body>

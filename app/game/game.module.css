@@ -1,0 +1,6 @@
+/* game.module.css */
+
+.gameContainer {
+  background-color: #1a2c5a;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.5);
+}

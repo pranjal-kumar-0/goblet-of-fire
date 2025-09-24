@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import styles from "./game.module.css";
 
 export default function Game() {
     return (
@@ -10,11 +11,7 @@ export default function Game() {
                 </div>
 
                 <div
-                    className="w-full rounded-2xl shadow-2xl border-4 border-yellow-700 p-8 sm:p-10 text-center"
-                    style={{
-                        backgroundColor: "#1a2c5a", // A mysterious blue
-                        boxShadow: "0 10px 40px rgba(0,0,0,0.7), inset 0 0 15px rgba(0,0,0,0.5)",
-                    }}
+                    className={`w-full rounded-2xl shadow-2xl border-4 border-yellow-700 p-8 sm:p-10 text-center ${styles.gameContainer}`}
                 >
                     <h1 className="font-['Cinzel_Decorative'] text-4xl sm:text-5xl text-yellow-200 text-center drop-shadow-[0_2px_5px_rgba(0,0,0,0.8)] tracking-wider mb-12">
                         Round 1: The Magical Games
