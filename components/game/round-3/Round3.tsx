@@ -22,11 +22,11 @@ export default function Round3Page() {
   const [activePage, setActivePage] = useState('landing');
 
   const pages = [
-    { id: 'instructions', name: 'General Instructions', component: <Instructions /> },
+    { id: 'instructions', name: 'Instructions', component: <Instructions /> },
     { id: 'theme-1', name: 'Theme 1: Potions', component: <Question1 /> },
-    { id: 'theme-2', name: 'Theme 2: Charms', component: <Question2 /> },
+    { id: 'theme-2', name: 'The Song', component: <Question2 /> },
     { id: 'theme-3', name: 'Theme 3: Herbology', component: <Question3 /> },
-    { id: 'theme-4', name: 'Theme 4: Quidditch', component: <Question4 /> },
+    { id: 'theme-4', name: 'The Fountain', component: <Question4 /> },
   ];
 
   const renderContent = () => {
