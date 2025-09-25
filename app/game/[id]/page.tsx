@@ -1,5 +1,5 @@
 import Round1 from "@/components/game/Round1";
-import Round3 from "@/components/game/Round3";
+import Round3 from "@/components/game/round-3/Round3";
 
 export default function Page({
   params,
