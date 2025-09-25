@@ -4,29 +4,42 @@ import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useMessage } from "../hooks/useMessage";
 import { AuthService } from "../utils/authService";
+import { EnrollmentAuthService } from "../utils/enrollmentAuth";
 import { Message } from "./Message";
 
 export function AuthForm() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPasswordReset, setShowPasswordReset] = useState(false);
-  const { signup, login, logout, deleteAccount, currentUser } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const { logout, deleteAccount, currentUser } = useAuth();
   const { message, showMessage, hideMessage } = useMessage();
 
   const isVitStudent = email.endsWith('@vitapstudent.ac.in');
 
   const clearForm = () => {
     setEmail("");
-    setPassword("");
   };
 
-  const handleAuth = async (action: 'signup' | 'login') => {
+  const handleMagicAuth = async () => {
+    if (!email.trim()) {
+      showMessage("Please enter your email address.", "error");
+      return;
+    }
+
+    setLoading(true);
     try {
-      await (action === 'signup' ? signup(email, password) : login(email, password));
-      showMessage(`${action === 'signup' ? 'Account created' : 'Logged in'} successfully!`, "success");
-      clearForm();
-    } catch (error: any) {
-      showMessage(error.message, "error");
+      const result = await EnrollmentAuthService.sendMagicalSignInLink(email);
+      
+      if (result.success) {
+        showMessage("🪄 Magical sign-in link sent to your email! Check your inbox.", "success");
+        clearForm();
+      } else {
+        showMessage(result.error || "Failed to send magic link", "error");
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "An unexpected error occurred";
+      showMessage(errorMessage, "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -50,20 +63,7 @@ export function AuthForm() {
     }
   };
 
-  const handlePasswordReset = async () => {
-    if (!email) {
-      showMessage("Please enter your email address first.", "error");
-      return;
-    }
 
-    try {
-      await AuthService.resetPassword(email);
-      showMessage("Password reset email sent! Check your inbox.", "success");
-      setShowPasswordReset(false);
-    } catch (error: any) {
-      showMessage(error.message, "error");
-    }
-  };
 
   return (
     <div className="w-full">
@@ -100,10 +100,19 @@ export function AuthForm() {
       {/* Auth Form */}
       {!currentUser && (
         <div className="space-y-6">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-['Cinzel_Decorative'] text-yellow-300 mb-2">
+              ✨ Magic Authentication
+            </h2>
+            <p className="text-yellow-200/80 font-['Cinzel_Decorative'] text-sm">
+              Enter your email to receive a magical sign-in link
+            </p>
+          </div>
+
           {isVitStudent && (
             <div className="p-4 bg-blue-900/60 border-2 border-blue-600 rounded-lg">
               <p className="text-blue-200 font-['Cinzel_Decorative'] text-sm flex items-center">
-                🎓 VIT Student detected! If you enrolled through the form, use password reset to access your account.
+                🎓 VIT Student detected! If you enrolled through the form, a magic link will be sent to access your account.
               </p>
             </div>
           )}
@@ -121,56 +130,18 @@ export function AuthForm() {
             />
           </div>
           
-          <div>
-            <label className="block text-yellow-200 font-['Cinzel_Decorative'] mb-2 text-base sm:text-lg pl-3 border-l-4 border-yellow-600">
-              Magical Password
-            </label>
-            <input 
-              type="password"
-              placeholder={isVitStudent ? "Use password reset if enrolled via form" : "Enter your magical password"}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border-2 border-yellow-800 bg-[#3a1d00]/80 focus:outline-none focus:ring-2 focus:ring-yellow-500 shadow-inner text-yellow-100 placeholder-yellow-300/50"
-            />
-            {isVitStudent && (
-              <button
-                type="button"
-                onClick={() => setShowPasswordReset(!showPasswordReset)}
-                className="mt-2 text-sm text-yellow-300 hover:text-yellow-100 underline"
-              >
-                Need to reset password?
-              </button>
-            )}
-          </div>
-
-          {showPasswordReset && (
-            <div className="p-4 bg-[#3a1d00]/60 border-2 border-yellow-800 rounded-lg">
-              <p className="text-yellow-200 mb-3 text-sm">Reset your password to access your Hogwarts account:</p>
-              <button
-                onClick={handlePasswordReset}
-                className="w-full px-4 py-2 text-sm font-['Cinzel_Decorative'] text-black bg-gradient-to-r from-orange-500 via-orange-300 to-orange-500 rounded-lg shadow-lg hover:scale-105 transition-all duration-300"
-              >
-                Send Password Reset Email
-              </button>
-            </div>
-          )}
-          
-          <div className="flex flex-col space-y-3">
-            {!isVitStudent && (
-              <button 
-                onClick={() => handleAuth('signup')}
-                className="w-full px-6 py-3 text-lg font-['Cinzel_Decorative'] text-black bg-gradient-to-r from-yellow-500 via-yellow-300 to-yellow-500 rounded-full shadow-[0_0_20px_rgba(255,215,0,0.8)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,215,0,1)] transition-all duration-300 border-2 border-yellow-600/50"
-              >
-                Join the Order
-              </button>
-            )}
-            <button 
-              onClick={() => handleAuth('login')}
-              className="w-full px-6 py-3 text-lg font-['Cinzel_Decorative'] text-black bg-gradient-to-r from-green-500 via-green-300 to-green-500 rounded-full shadow-[0_0_20px_rgba(0,255,0,0.6)] hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,0,0.8)] transition-all duration-300 border-2 border-green-600/50"
-            >
-              Enter the Castle
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleMagicAuth}
+            disabled={loading || !email.trim()}
+            className={`w-full px-6 py-3 text-lg font-['Cinzel_Decorative'] ${
+              loading || !email.trim()
+                ? 'bg-gray-600 cursor-not-allowed text-gray-400' 
+                : 'text-black bg-gradient-to-r from-purple-500 via-purple-300 to-purple-500 shadow-[0_0_20px_rgba(147,51,234,0.8)] hover:scale-105 hover:shadow-[0_0_30px_rgba(147,51,234,1)]'
+            } rounded-full transition-all duration-300 border-2 border-purple-600/50`}
+          >
+            {loading ? '🪄 Casting spell...' : '✨ Send Magic Link'}
+          </button>
           
           {!isVitStudent && (
             <div className="text-center pt-4">
