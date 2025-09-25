@@ -65,7 +65,7 @@ export default function Round3Page() {
       backgroundAttachment: 'fixed'
     }}>
       <div className="flex flex-col md:flex-row">
-        <aside className="w-full md:w-64 lg:w-72 bg-stone-800/60 backdrop-blur-sm p-6 border-r border-amber-900">
+        <aside className="w-full md:w-64 lg:w-72 h-screen bg-stone-800/60 backdrop-blur-sm p-6 border-r border-amber-900">
           <MagicHeading>The Marauder's Map</MagicHeading>
           <nav>
             <ul>
