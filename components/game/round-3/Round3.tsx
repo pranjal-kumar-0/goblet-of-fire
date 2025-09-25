@@ -23,9 +23,9 @@ export default function Round3Page() {
 
   const pages = [
     { id: 'instructions', name: 'Instructions', component: <Instructions /> },
-    { id: 'theme-1', name: 'Theme 1: Potions', component: <Question1 /> },
+    { id: 'theme-1', name: 'The Forest', component: <Question1 /> },
     { id: 'theme-2', name: 'The Song', component: <Question2 /> },
-    { id: 'theme-3', name: 'Theme 3: Herbology', component: <Question3 /> },
+    { id: 'theme-3', name: 'The Worlds', component: <Question3 /> },
     { id: 'theme-4', name: 'The Fountain', component: <Question4 /> },
   ];
 
