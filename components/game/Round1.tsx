@@ -6,7 +6,6 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import HPBackground from "../HPBackground";
 
 const iconProps = {
   width: 22,
@@ -24,7 +23,7 @@ const IconLightning: React.FC<{ title?: string }> = ({ title = "Lightning" }) =>
     stroke="#ffd166"
     role="img"
     aria-label={title}
-    style={{ filter: "drop-shadow(0 0 2px rgba(255,209,102,0.2))" }}
+    style={{ filter: "drop-shadow(0 0 2px rgba(255,209,102,0.3))" }}
   >
     <title>{title}</title>
     <path
@@ -54,7 +53,7 @@ const IconFlag: React.FC<{ title?: string }> = ({ title = "Finish" }) => (
     <defs>
       <linearGradient id="flagGrad" x1="4" x2="22" y1="4" y2="14" gradientUnits="userSpaceOnUse">
         <stop stopColor="#ffd166" stopOpacity={0.55} />
-        <stop offset="1" stopColor="#fca311" stopOpacity={0.35} />
+        <stop offset="1" stopColor="#f77f00" stopOpacity={0.35} />
       </linearGradient>
     </defs>
   </svg>
@@ -423,9 +422,7 @@ const Round1: React.FC = () => {
     } finally {
       setSubmittingScore(false);
     }
-  };
-
-  const shadows = {
+  };  const shadows = {
     glowGold: "0 0 4px rgba(255,209,102,0.3), 0 0 12px rgba(255,209,102,0.2)",
     softGold: "0 0 2px rgba(255,209,102,0.25)",
     subtleLight: "0 1px 1px rgba(0,0,0,0.4)",
@@ -434,9 +431,7 @@ const Round1: React.FC = () => {
     jade: "0 0 4px rgba(46,213,115,0.3)",
     rose: "0 0 4px rgba(255,71,87,0.3)",
     lilac: "0 0 4px rgba(199,125,255,0.3)",
-  };
-
-  const style = {
+  };  const style = {
     page: {
       minHeight: "100dvh",
       color: "#f7f3e9",
@@ -446,8 +441,7 @@ const Round1: React.FC = () => {
       alignItems: "center",
       position: "relative" as const,
       overflow: "hidden" as const,
-      background:
-        "radial-gradient(1200px 600px at 10% 0%, #1a0f1f 0%, #0d0a0f 35%, #07060a 100%)",
+      background: "linear-gradient(to bottom, #1a1a2e 0%, #16213e 40%, #0f0f23 100%)",
     },
     card: {
       width: "min(900px, 100%)",
@@ -461,8 +455,7 @@ const Round1: React.FC = () => {
       textAlign: "center" as const,
       position: "relative" as const,
       zIndex: 2,
-    },
-    title: {
+    },    title: {
       margin: 0,
       fontSize: "32px",
       letterSpacing: "0.5px",
@@ -487,8 +480,7 @@ const Round1: React.FC = () => {
       gap: 8,
       fontSize: 14,
       textShadow: shadows.deep,
-    },
-    progressBar: {
+    },    progressBar: {
       height: "10px",
       width: "100%",
       background: "rgba(255,255,255,0.10)",
@@ -500,7 +492,7 @@ const Round1: React.FC = () => {
     progressFill: (pct: number): React.CSSProperties => ({
       width: `${pct}%`,
       height: "100%",
-      background: "linear-gradient(90deg, #ffd166, #fca311, #c77dff 120%)",
+      background: "linear-gradient(90deg, #ffd166, #f77f00, #e85d04 120%)",
       transition: "width 280ms ease",
       boxShadow: "0 0 12px 2px rgba(255,209,102,0.35)",
     }),
@@ -542,8 +534,7 @@ const Round1: React.FC = () => {
       gap: "10px",
       padding: "14px 16px",
       borderRadius: "12px",
-      cursor: locked ? "default" : "pointer",
-      background: checked
+      cursor: locked ? "default" : "pointer",      background: checked
         ? "linear-gradient(135deg, rgba(255,209,102,0.20), rgba(255,209,102,0.05))"
         : "linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
       border: "1px solid rgba(255,255,255,0.14)",
@@ -585,8 +576,7 @@ const Round1: React.FC = () => {
       boxShadow: isCorrect
         ? "0 0 14px -4px rgba(46,213,115,0.5)"
         : "0 0 14px -4px rgba(255,71,87,0.55)",
-    }),
-    validatingFeedback: {
+    }),    validatingFeedback: {
       marginTop: 14,
       padding: "12px 14px",
       borderRadius: 12,
@@ -626,8 +616,7 @@ const Round1: React.FC = () => {
         gap: 6,
         textShadow: "0 1px 2px rgba(0,0,0,0.4)",
         backdropFilter: "blur(3px)",
-      };
-      if (variant === "primary") {
+      };      if (variant === "primary") {
         return {
           ...base,
           background:
@@ -684,8 +673,7 @@ const Round1: React.FC = () => {
       height: "100%",
       objectFit: "cover" as const,
       background: "#000",
-    },
-    gateMessage: {
+    },    gateMessage: {
       fontSize: 18,
       color: "#ffd166",
       letterSpacing: 0.6,
@@ -824,8 +812,7 @@ const Round1: React.FC = () => {
       fontWeight: 600,
       textShadow: shadows.jade,
       boxShadow: "0 0 18px -6px rgba(46,213,115,0.6)",
-    },
-    lockOverlay: {
+    },    lockOverlay: {
       position: "absolute" as const,
       inset: 0,
       background: "rgba(0,0,0,0.55)",
@@ -988,10 +975,8 @@ const Round1: React.FC = () => {
       </div>
     );
   };
-
   return (
     <div style={style.page}>
-      <HPBackground />
       {showVideoGate && currentQuestion?.videoUrl && (
         <div style={style.fullScreenGate} aria-live="polite">
           <div style={style.gateVideoContainer}>
@@ -1084,8 +1069,7 @@ const Round1: React.FC = () => {
                               checked={isChecked}
                               onChange={() =>
                                 handleOptionChange(currentQuestion.id, opt.id)
-                              }
-                              disabled={isLocked}
+                              }                              disabled={isLocked}
                               style={{ accentColor: "#ffd166" }}
                             />
                             <span>{opt.text}</span>
