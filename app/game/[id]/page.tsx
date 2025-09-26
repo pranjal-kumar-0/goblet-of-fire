@@ -1,12 +1,12 @@
 import Round1 from "@/components/game/Round1";
 import Round3 from "@/components/game/round-3/Round3";
 
-export default function Page({
+export default async function Page({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
-  const id = Number(params.id);
+  const id = Number((await params).id);
 
   if (id === 1) {
     return <Round1 />;
