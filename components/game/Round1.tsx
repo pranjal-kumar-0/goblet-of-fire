@@ -956,11 +956,13 @@ const Round1: React.FC = () => {
             <button
               style={style.btn("primary")}
               disabled={
-                submittedCode ||
-                !status ||
-                status.passed !== true ||
-                running ||
-                codeSubmitting[qid]
+                Boolean(
+                  submittedCode ||
+                  !status ||
+                  status.passed !== true ||
+                  running ||
+                  codeSubmitting[qid]
+                )
               }
               onClick={() => handleSubmitCode(qid)}
             >
@@ -1141,10 +1143,13 @@ const Round1: React.FC = () => {
                     style={style.btn("primary")}
                     onClick={finishQuiz}
                     disabled={
-                      !currentSelectedId ||
-                      isPending ||
-                      (isCodeQuestion(currentQuestion) &&
-                        !validatedAnswers[currentQuestion.id])
+                      !!(
+                        !currentSelectedId ||
+                        isPending ||
+                        (isCodeQuestion(currentQuestion) &&
+                          currentQuestion &&
+                          !validatedAnswers[currentQuestion.id])
+                      )
                     }
                     aria-label="Finish quiz"
                   >
