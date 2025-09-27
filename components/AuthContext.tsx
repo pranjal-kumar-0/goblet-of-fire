@@ -2,7 +2,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/firebase/firebase.config";
-import { AuthService } from "@/lib/authService";
 
 interface AuthContextType {
   user: User | null;
@@ -21,69 +20,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check localStorage first for fallback authentication
+    // Check localStorage FIRST on mount
     const storedAuth = localStorage.getItem("isAuthenticated");
     const storedTeamId = localStorage.getItem("teamId");
-    const authMethod = localStorage.getItem("authMethod");
+    const storedUserId = localStorage.getItem("userId");
     
     if (storedAuth === "true" && storedTeamId) {
+      // Restore authentication state from localStorage
       setTeamId(storedTeamId);
       setIsAuthenticated(true);
+      setIsLoading(false);
       
-      // If using fallback auth, we don't need Firebase
-      if (authMethod === 'fallback') {
-        setIsLoading(false);
-        return;
-      }
+      // For localStorage auth, we don't need a full user object
+      // The authentication state is managed by localStorage
+      setUser(null);
     }
 
-    // Try Firebase authentication
-    const checkFirebase = async () => {
-      try {
-        const isFirebaseAvailable = await AuthService.isFirebaseAvailable();
-        if (!isFirebaseAvailable) {
-          console.log('Firebase unavailable, using fallback authentication');
-          setIsLoading(false);
-          return;
+    // Then listen for Firebase auth changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      
+      if (user) {
+        // Extract team ID from email
+        const email = user.email || "";
+        const extractedTeamId = email.replace("@goblet-of-fire.local", "");
+        setTeamId(extractedTeamId);
+        setIsAuthenticated(true);
+        
+        // Update localStorage
+        localStorage.setItem("teamId", extractedTeamId);
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("userId", user.uid);
+      } else {
+        // Only clear if not authenticated via localStorage
+        const storedAuth = localStorage.getItem("isAuthenticated");
+        if (storedAuth !== "true") {
+          setTeamId(null);
+          setIsAuthenticated(false);
+          localStorage.removeItem("teamId");
+          localStorage.removeItem("isAuthenticated");
+          localStorage.removeItem("userId");
         }
-
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-          setUser(user);
-          
-          if (user) {
-            // Extract team ID from email
-            const email = user.email || "";
-            const extractedTeamId = email.replace("@goblet-of-fire.local", "");
-            setTeamId(extractedTeamId);
-            setIsAuthenticated(true);
-            
-            // Update localStorage
-            localStorage.setItem("teamId", extractedTeamId);
-            localStorage.setItem("isAuthenticated", "true");
-            localStorage.setItem("userId", user.uid);
-            localStorage.setItem("authMethod", "firebase");
-          } else {
-            // Only clear if not using fallback auth
-            if (authMethod !== 'fallback') {
-              setTeamId(null);
-              setIsAuthenticated(false);
-              localStorage.removeItem("teamId");
-              localStorage.removeItem("isAuthenticated");
-              localStorage.removeItem("userId");
-            }
-          }
-          
-          setIsLoading(false);
-        });
-
-        return unsubscribe;
-      } catch (error) {
-        console.log('Firebase auth failed, using fallback');
-        setIsLoading(false);
       }
-    };
+      
+      setIsLoading(false);
+    });
 
-    checkFirebase();
+    return () => unsubscribe();
   }, []);
 
   const logout = () => {

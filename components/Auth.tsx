@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { AuthService } from "@/lib/authService";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/firebase/firebase.config";
 
 interface AuthProps {
   onAuthSuccess: (teamId: string) => void;
@@ -18,33 +19,43 @@ export default function Auth({ onAuthSuccess }: AuthProps) {
     setError("");
 
     try {
-      // Use the fallback authentication service
-      const result = await AuthService.authenticate(teamId, password);
+      // Create email format: teamId@goblet-of-fire.local
+      const email = `${teamId}@goblet-of-fire.local`;
       
-      if (result.success && result.team) {
-        // Store team info in localStorage
-        localStorage.setItem("teamId", teamId);
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("teamName", result.team.name);
-        localStorage.setItem("teamHouse", result.team.house);
-        localStorage.setItem("authMethod", result.method);
+      // Try Firebase Auth first
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // Store team info in localStorage
+      localStorage.setItem("teamId", teamId);
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("userId", userCredential.user.uid);
+      
+      onAuthSuccess(teamId);
+    } catch (firebaseError: any) {
+      console.error("Firebase authentication failed:", firebaseError);
+      
+      // FALLBACK: Check against JSON backup
+      try {
+        const teamData = await import('@/team-credentials-backup.json');
+        const team = teamData.teams.find((t: any) => t.teamId === teamId);
         
-        // If Firebase was used, store user ID
-        if (result.method === 'firebase') {
-          const auth = await import('@/firebase/firebase.config').then(m => m.auth);
-          const user = auth.currentUser;
-          if (user) {
-            localStorage.setItem("userId", user.uid);
-          }
+        if (team && team.password === password) {
+          // Manual authentication success using JSON fallback
+          localStorage.setItem("teamId", teamId);
+          localStorage.setItem("isAuthenticated", "true");
+          localStorage.setItem("userId", `local_${teamId}`);
+          localStorage.setItem("teamName", team.name);
+          localStorage.setItem("teamHouse", team.house);
+          
+          console.log(`✅ Fallback authentication successful for ${teamId}`);
+          onAuthSuccess(teamId);
+        } else {
+          setError("Invalid Team ID or Password. Please try again.");
         }
-        
-        onAuthSuccess(teamId);
-      } else {
-        setError(result.error || "Invalid Team ID or Password. Please try again.");
+      } catch (jsonError) {
+        console.error("JSON fallback failed:", jsonError);
+        setError("Authentication service unavailable. Please try again later.");
       }
-    } catch (error: any) {
-      console.error("Authentication error:", error);
-      setError("Authentication failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
