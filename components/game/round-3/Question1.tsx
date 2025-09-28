@@ -25,7 +25,7 @@ export default function Question1() {
           The symbols are runes you’ve seen in Ancient Studies, not scribbles from mischievous students. They glow faintly, rearranging themselves into repeating patterns. The whisper of leaves almost sounds like words, urging you: “Decode us, young wizard, and the warmth you seek shall reveal itself.”
         </MagicParagraph>
         <div className="mt-6 p-6 border-2 border-fuchsia-600/60 bg-black/90 rounded-lg shadow-[0_0_20px_rgba(255,0,255,0.6)] text-center">
-          <p className="text-fuchsia-300 font-mono text-4xl font-bold tracking-widest drop-shadow-[0_0_25px_rgba(255,0,255,1)]">ᛊᛖᛖᚲ ᚦᛖᛊᛖᚲᚱᛖᛏ ᚹᚨᚱᛗᚦ</p>
+          <p className="text-fuchsia-300 font-mono text-4xl font-bold tracking-widest drop-shadow-[0_0_25px_rgba(255,0,255,1)]">ᛗᛟᛟᚾᛚᛁᚷᚺᛏ ᛊᛏᛁᚱᛊ</p>
         </div>
       </div>
     </div>
