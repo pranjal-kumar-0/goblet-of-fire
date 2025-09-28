@@ -1,4 +1,5 @@
 import Round1 from "@/components/game/Round1";
+import Round2 from "@/components/game/Round2";
 import Round3 from "@/components/game/round-3/Round3";
 
 export default async function Page({
@@ -10,6 +11,10 @@ export default async function Page({
 
   if (id === 1) {
     return <Round1 />;
+  }
+
+  if (id === 2) {
+    return <Round2 />;
   }
 
   if (id === 3) {
