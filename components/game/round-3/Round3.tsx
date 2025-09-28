@@ -20,6 +20,7 @@ const MagicHeading2 = ({ children }: { children: React.ReactNode }) => (
 
 export default function Round3Page() {
   const [activePage, setActivePage] = useState('landing');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const pages = [
     { id: 'instructions', name: 'Instructions', component: <Instructions /> },
@@ -32,6 +33,11 @@ export default function Round3Page() {
   const renderContent = () => {
     const page = pages.find(p => p.id === activePage);
     return page ? page.component : <Instructions />;
+  };
+
+  const handleNavClick = (pageId: string) => {
+    setActivePage(pageId);
+    setSidebarOpen(false); 
   };
 
   // Landing page
@@ -64,16 +70,28 @@ export default function Round3Page() {
     <div
       className="min-h-screen bg-gradient-to-br from-black via-stone-950 to-black text-yellow-100"
     >
-      <div className="flex flex-col md:flex-row">
+      <div className="flex flex-col md:flex-row relative">
+        {/* Mobile hamburger button */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          className="md:hidden fixed top-4 left-4 z-50 p-2 bg-black/60 backdrop-blur-md rounded-md border border-yellow-700/40 shadow-[0_0_20px_rgba(255,215,0,0.3)]"
+        >
+          <svg className="w-6 h-6 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
         {/* Sidebar */}
-        <aside className="w-full md:w-64 lg:w-72 h-screen bg-black/60 backdrop-blur-md p-6 border-r border-yellow-700/40 shadow-[0_0_30px_rgba(255,215,0,0.2)]">
+        <aside className={`w-full md:w-64 lg:w-72 h-screen bg-black/60 backdrop-blur-md p-6 border-r border-yellow-700/40 shadow-[0_0_30px_rgba(255,215,0,0.2)] md:relative md:translate-x-0 transition-transform duration-300 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+        } fixed md:static top-0 left-0 z-40`}>
           <MagicHeading2>The Marauder&apos;s Map</MagicHeading2>
           <nav>
             <ul>
               {pages.map(page => (
                 <li key={page.id} className="mb-6">
                   <button
-                    onClick={() => setActivePage(page.id)}
+                    onClick={() => handleNavClick(page.id)}
                     className={`block w-full text-left p-3 rounded-md font-serif transition-colors duration-300 ${
                       activePage === page.id
                         ? 'bg-yellow-700/40 text-yellow-200 shadow-[0_0_15px_rgba(255,255,150,0.5)]'
@@ -88,8 +106,15 @@ export default function Round3Page() {
           </nav>
         </aside>
 
+        {sidebarOpen && (
+          <div
+            className="md:hidden fixed inset-0 bg-black/50 z-30"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Content */}
-        <main className="flex-1">
+        <main className="flex-1 md:ml-0">
           {renderContent()}
         </main>
       </div>
