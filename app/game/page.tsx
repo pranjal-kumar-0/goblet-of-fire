@@ -56,7 +56,7 @@ export default function Game() {
         <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-black via-red-950 to-black px-4">
             {/* Team Info Header */}
             <div className="absolute top-6 right-6 flex items-center space-x-4">
-                <div className="text-right">
+                <div className="text-center">
                     <div className="text-yellow-200 font-['Cinzel_Decorative'] text-lg">{teamInfo.name}</div>
                     <div className={`text-sm px-3 py-1 rounded-full bg-gradient-to-r ${getHouseColor(teamInfo.house)} text-white font-semibold`}>
                         {teamInfo.house}
@@ -81,17 +81,17 @@ export default function Game() {
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
                 <Link href={'/game/1'}>
                     <button className="px-8 py-4 rounded-lg bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 text-black font-['Cinzel_Decorative'] text-lg font-semibold shadow-[0_0_20px_rgba(255,215,0,0.7)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,215,0,1)] transition-all duration-300 border-2 border-yellow-600/50">
-                        First Task
+                         Round 1
                     </button>
                 </Link>
                 <Link href={'/game/2'}>
                     <button className="px-8 py-4 rounded-lg bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 text-black font-['Cinzel_Decorative'] text-lg font-semibold shadow-[0_0_20px_rgba(255,215,0,0.7)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,215,0,1)] transition-all duration-300 border-2 border-yellow-600/50">
-                        Second Task
+                        Round 2
                     </button>
                 </Link>
                 <Link href={'/game/3'}>
                     <button className="px-8 py-4 rounded-lg bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 text-black font-['Cinzel_Decorative'] text-lg font-semibold shadow-[0_0_20px_rgba(255,215,0,0.7)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,215,0,1)] transition-all duration-300 border-2 border-yellow-600/50">
-                        Third Task
+                        Round 3
                     </button>
                 </Link>
             </div>
