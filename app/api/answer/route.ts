@@ -6,17 +6,17 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const { userId, questionId, selectedAnswer } = body;
+    const { teamId, questionId, selectedAnswer } = body;
 
     const isValidQuestion = await dbAdmin
-      .collection("questions")
+      .collection("question")
       .doc(questionId)
       .get();
     if (!isValidQuestion.exists) {
       return NextResponse.json({ message: "Invalid question", status: 404 });
     }
 
-    const isValidUser = await dbAdmin.collection("scores").doc(userId).get();
+    const isValidUser = await dbAdmin.collection("teams").doc(teamId).get();
     if (!isValidUser.exists) {
       return NextResponse.json({ message: "User Id not found", status: 401 });
     }
@@ -33,8 +33,9 @@ export async function POST(req: NextRequest) {
     : 0;
 
 
-    await dbAdmin.collection("scores").doc(userId).update({
-      score: admin.firestore.FieldValue.increment(userScore)
+    await dbAdmin.collection("teams").doc(teamId).update({
+      score: admin.firestore.FieldValue.increment(userScore),
+      questionsAttempted: admin.firestore.FieldValue.arrayUnion(questionId)
     })
     return NextResponse.json({ achievedScore: userScore })
   } catch (error) {

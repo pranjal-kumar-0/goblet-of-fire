@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
     try {
-        const response = await dbAdmin.collection("questions").get();
+        const response = await dbAdmin.collection("question").get();
         // response se data lekr naya array banega with question ID(joki important hai) and other fields joki "spread" ho rahe hai
         const questions = response.docs.map(doc => ({id: doc.id, ...doc.data()}))
 
