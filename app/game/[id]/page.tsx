@@ -1,5 +1,5 @@
 "use client";
-import Round1 from "@/components/game/Round1";
+import Round1 from "@/components/game/round-1";
 import Round2 from "@/components/game/Round2";
 import Round3 from "@/components/game/round-3/Round3";
 import GameNavbar from "@/components/GameNavbar";
