@@ -64,7 +64,7 @@ const page = () => {
                                             </div>
                                             <div>
                                                 <p className="font-['Cinzel_Decorative'] text-2xl capitalize">
-                                                    {getNameFromEmail(user.email)}
+                                                    {getNameFromEmail(user.id)}
                                                 </p>
                                             </div>
                                         </div>
@@ -76,7 +76,7 @@ const page = () => {
                             ))}
                             {leaderboard.slice(3).map((user, index) => (
                                 <div key={user.id} className="flex justify-between items-center text-yellow-200 font-['Cinzel_Decorative'] text-lg sm:text-xl px-4 py-2 border-b border-yellow-500/30">
-                                    <span>#{index + 4} {getNameFromEmail(user.email)}</span>
+                                    <span>#{index + 4} {getNameFromEmail(user.id)}</span>
                                     <span>{user.score} points</span>
                                 </div>
                             ))}
