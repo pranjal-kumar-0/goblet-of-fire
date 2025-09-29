@@ -151,7 +151,7 @@ export default function Question4() {
           As the sunlight dances on the water, glints of gold highlight some patterns in the ripples. You sense that by looking at the sound itself, a secret message might appear.
           Spectrum need analysis to seek whispers of unseen tones.
         </MagicParagraph>
-        <MagicAudioPlayer src="/round-3/q4.mp3" title="Fountain's Melody" />
+        <MagicAudioPlayer src="/round-3/q4.wav" title="Fountain's Melody" />
       </div>
     </div>
   );
