@@ -628,7 +628,7 @@ const Round1: React.FC = () => {
                                 WebkitTapHighlightColor: "transparent",
                                 marginBottom: "12px"
                               }}>
-                                Fix the code:
+                                Solve the Problem:
                               </h2>
                               <pre style={{
                                 fontFamily: "'Fira Code', 'Courier New', monospace",

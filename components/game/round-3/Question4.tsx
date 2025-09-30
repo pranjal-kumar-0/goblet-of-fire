@@ -92,7 +92,6 @@ const MagicAudioPlayer: React.FC<{ src: string; title?: string }> = ({ src, titl
         >
           <span className="font-['Cinzel_Decorative'] text-2xl">{isPlaying ? '❚❚' : '▶'}</span>
         </button>
-
         <div className="flex-1">
           <h3 className="font-['Cinzel_Decorative'] text-lg text-orange-300 drop-shadow-[0_0_10px_rgba(255,165,0,0.6)] mb-2">
             {title}
@@ -127,9 +126,19 @@ const MagicAudioPlayer: React.FC<{ src: string; title?: string }> = ({ src, titl
             <span>{formatTime(duration)}</span>
           </div>
         </div>
+        <a
+          href={src}
+          download
+          className="relative group w-16 h-16 rounded-full bg-gradient-to-br from-orange-600 via-orange-500 to-orange-400 border border-orange-300/60 flex items-center justify-center text-black font-bold shadow-[0_0_20px_rgba(255,165,0,0.7)] hover:scale-105 hover:shadow-[0_0_25px_rgba(255,200,0,0.9)] transition-all duration-300"
+          aria-label="Download audio"
+        >
+          <span className="font-['Cinzel_Decorative'] text-2xl">⬇</span>
+        </a>
       </div>
       <audio ref={audioRef} src={src} preload="metadata" className="hidden" />
+
     </div>
+
   );
 };
 
