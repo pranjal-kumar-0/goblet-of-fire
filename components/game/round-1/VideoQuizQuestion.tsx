@@ -14,6 +14,8 @@ interface Question {
   videoUrl: string;
   videoPoster?: string | null;
   videoCaption?: string | null;
+  correctAnswer?: number;
+  difficulty?: string;
 }
 
 interface ValidationResult {
@@ -53,27 +55,54 @@ const VideoQuizQuestion: React.FC<VideoQuizQuestionProps> = ({
   }, [onVideoEnded]);
 
   if (showVideoGate) {
+    const isGoogleDrive = question.videoUrl && question.videoUrl.includes('drive.google.com');
+    let videoElement;
+    if (isGoogleDrive) {
+      const match = question.videoUrl.match(/\/d\/([^\/]+)/);
+      const fileId = match ? match[1] : '';
+      const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+      videoElement = (
+        <iframe
+          src={embedUrl}
+          style={style.gateVideoEl}
+          allowFullScreen
+          frameBorder="0"
+        />
+      );
+    } else {
+      videoElement = (
+        <video
+          ref={videoRef}
+          style={style.gateVideoEl}
+          controls
+          autoPlay
+          playsInline
+          preload="auto"
+          controlsList="nodownload"
+          disablePictureInPicture
+          onEnded={handleVideoEnded}
+          poster={question.videoPoster || undefined}
+          crossOrigin="anonymous"
+        >
+          <source src={question.videoUrl} />
+          Your browser does not support the video tag.
+        </video>
+      );
+    }
     return (
       <div style={style.fullScreenGate} aria-live="polite">
         <div style={style.gateVideoContainer}>
-          <video
-            ref={videoRef}
-            style={style.gateVideoEl}
-            controls
-            autoPlay
-            playsInline
-            preload="auto"
-            controlsList="nodownload"
-            disablePictureInPicture
-            onEnded={handleVideoEnded}
-            poster={question.videoPoster || undefined}
-            crossOrigin="anonymous"
-          >
-            <source src={question.videoUrl} />
-            Your browser does not support the video tag.
-          </video>
+          {videoElement}
         </div>
-        <div style={style.gateMessage}>Watch till end to unlock question</div>
+        <div style={style.gateMessage}>
+          {isGoogleDrive ? (
+            <button onClick={handleVideoEnded} style={{ padding: '10px 20px', background: 'red', border: 'none', borderRadius: '5px' }}>
+              Answer Question
+            </button>
+          ) : (
+            'Watch till end to unlock question'
+          )}
+        </div>
       </div>
     );
   }

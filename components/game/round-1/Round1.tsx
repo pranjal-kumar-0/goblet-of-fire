@@ -74,6 +74,8 @@ interface Question {
   codeTemplate?: string;
   language?: string;
   evaluationHint?: string;
+  correctAnswer?: number;
+  difficulty?: string;
 }
 interface SubmitScoreParams { userId?: string | null; score: number; total: number; round?: number; }
 interface SubmitResult { ok: boolean; error?: string; }
@@ -81,88 +83,47 @@ interface SelectedAnswers { [questionId: string]: string; }
 interface ValidationResult { isCorrect: boolean; correctOptionId: string; }
 
 async function fetchRound1Questions(): Promise<Question[]> {
-  return [
-    {
-      id: "q1",
-      text: "Which house at Hogwarts values bravery and chivalry?",
-      options: [
-        { id: "q1o1", text: "Ravenclaw" },
-        { id: "q1o2", text: "Hufflepuff" },
-        { id: "q1o3", text: "Gryffindor" },
-        { id: "q1o4", text: "Slytherin" },
-      ],
-      videoUrl: null,
-    },
-      {
-      id: "q2",
-      text: "Based on the video, which magical creature was shown?",
-      options: [
-        { id: "q2o1", text: "Hippogriff" },
-        { id: "q2o2", text: "Phoenix" },
-        { id: "q2o3", text: "Basilisk" },
-        { id: "q2o4", text: "Thestral" },
-      ],
-      videoUrl:
-        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-      videoPoster: "https://abc.abc/xyz.jpg",
-      videoCaption: "Observe the creature in the Forbidden Forest and answer:",
-    },
-    {
-      id: "q3",
-      text: "Which spell is used to disarm an opponent?",
-      options: [
-        { id: "q3o1", text: "Expelliarmus" },
-        { id: "q3o2", text: "Lumos" },
-        { id: "q3o3", text: "Wingardium Leviosa" },
-        { id: "q3o4", text: "Avada Kedavra" },
-      ],
-      videoUrl: null,
-    },
-    {
-      id: "q4",
-      text: "Who is the Half-Blood Prince?",
-      options: [
-        { id: "q4o1", text: "Harry Potter" },
-        { id: "q4o2", text: "Severus Snape" },
-        { id: "q4o3", text: "Tom Riddle" },
-        { id: "q4o4", text: "Draco Malfoy" },
-      ],
-      videoUrl: null,
-    },
-    {
-      id: "q5",
-      text: "What platform at King's Cross do students use to board the Hogwarts Express?",
-      options: [
-        { id: "q5o1", text: "Platform 10" },
-        { id: "q5o2", text: "Platform 9" },
-        { id: "q5o3", text: "Platform 9¾" },
-        { id: "q5o4", text: "Platform 10¾" },
-      ],
-      videoUrl: null,
-    },
-    {
-      id: "q6",
-      text: "Code Challenge: Implement a function sum(a, b) that returns the sum of two numbers.",
-      options: [],
-      codeTemplate: `// Implement sum so all tests pass
+  const response = await fetch('/api/questions');
+  const data = await response.json();
+  const apiQuestions = data.questions.map((item: any) => ({
+    id: item.id,
+    text: item.question,
+    options: item.option.map((opt: string, index: number) => ({
+      id: `${item.id}o${index + 1}`,
+      text: opt,
+    })),
+    videoUrl: item.videoUrl || null,
+    videoPoster: null,
+    videoCaption: null,
+    correctAnswer: item.correctAnswer,
+    difficulty: item.difficulty,
+  }));
+
+  const codeQuestion: Question = {
+    id: "q6",
+    text: "Code Challenge: Implement a function sum(a, b) that returns the sum of two numbers.",
+    options: [],
+    codeTemplate: `// Implement sum so all tests pass
 // Return the sum of a and b
 export function sum(a: number, b: number) {
   // your code here
 }
 `,
-      language: "typescript",
-      evaluationHint:
-        "Implement the sum function correctly. Use 'Compile & Test' to verify with unit tests, then 'Submit Code' when all pass.",
-    },
-  ];
+    language: "typescript",
+    evaluationHint:
+      "Implement the sum function correctly. Use 'Compile & Test' to verify with unit tests, then 'Submit Code' when all pass.",
+    difficulty: "code",
+  };
+
+  return [...apiQuestions, codeQuestion];
 }
 
 async function validateAnswerFromServer(
-  questionId: string,
+  question: Question,
   selectedOptionId: string
 ): Promise<ValidationResult> {
-  await new Promise((r) => setTimeout(r, 200));
-  const correctOptionId = questionId + "o1";
+  const correctIndex = question.correctAnswer! - 1;
+  const correctOptionId = question.options[correctIndex].id;
   return {
     isCorrect: selectedOptionId === correctOptionId,
     correctOptionId,
@@ -175,7 +136,6 @@ async function submitRound1Score({
   total,
   round = 1,
 }: SubmitScoreParams): Promise<SubmitResult> {
-  await new Promise((r) => setTimeout(r, 400));
   return { ok: true };
 }
 
@@ -231,7 +191,6 @@ const Round1: React.FC = () => {
   const [pendingValidations, setPendingValidations] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [finalScore, setFinalScore] = useState<number | null>(null);
-  const [submittingScore, setSubmittingScore] = useState<boolean>(false);
   const [submitResult, setSubmitResult] = useState<SubmitResult | null>(null);
 
   const [codeAnswers, setCodeAnswers] = useState<{ [qid: string]: string }>({});
@@ -336,7 +295,9 @@ const Round1: React.FC = () => {
     });
     setPendingValidations((prev) => [...prev, questionId]);
     try {
-      const result = await validateAnswerFromServer(questionId, optionId);
+      const question = questions.find(q => q.id === questionId);
+      if (!question) throw new Error("Question not found");
+      const result = await validateAnswerFromServer(question, optionId);
       setValidatedAnswers((prev) => ({ ...prev, [questionId]: result }));
     } catch {
       setValidatedAnswers((prev) => ({
@@ -445,19 +406,13 @@ const Round1: React.FC = () => {
     const computed = calculateScore();
     setFinalScore(computed);
     setSubmitted(true);
-    try {
-      setSubmittingScore(true);
-      const res = await submitRound1Score({
-        score: computed,
-        total: totalQuestions * POINTS_PER_CORRECT,
-        round: 1,
-      });
-      setSubmitResult(res);
-    } catch {
-      setSubmitResult({ ok: false, error: "Failed to submit score." });
-    } finally {
-      setSubmittingScore(false);
-    }  };
+    const res = await submitRound1Score({
+      score: computed,
+      total: totalQuestions * POINTS_PER_CORRECT,
+      round: 1,
+    });
+    setSubmitResult(res);
+  };
 
   const progressPct: number =
     totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0;
@@ -533,7 +488,6 @@ const Round1: React.FC = () => {
               </div>
               <div style={style.progressMeta}>
                 <span>Question {currentIndex + 1} of {totalQuestions}</span>
-                <span>+{POINTS_PER_CORRECT} pts per correct</span>
               </div>
             </div>            
             {currentQuestion && !showVideoGate && (
@@ -554,6 +508,9 @@ const Round1: React.FC = () => {
                 ) : (
                   <>
                     <h2 style={style.questionText}>{currentQuestion.text}</h2>
+                    <div style={{ fontSize: 14, color: "#ffd166", marginBottom: 10, textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
+                      Difficulty: {currentQuestion.difficulty}
+                    </div>
 
                     {isCodeQuestion(currentQuestion) ? (
                       <CodeQuestion
@@ -653,12 +610,6 @@ const Round1: React.FC = () => {
             >
               Results are in!
             </div>
-            <div style={{ fontSize: 16, textShadow: "0 1px 2px rgba(0,0,0,0.4)" }}>
-              Score:{" "}
-              <strong style={{ color: "#a7ffcf", textShadow: shadows.jade }}>
-                {finalScore} / {totalQuestions * POINTS_PER_CORRECT}
-              </strong>
-            </div>
             <div
               style={{
                 marginTop: 10,
@@ -666,9 +617,7 @@ const Round1: React.FC = () => {
                 textShadow: "0 1px 1px rgba(0,0,0,0.5)",
               }}
             >
-              {submittingScore
-                ? "Dispatching your score by owl..."
-                : submitResult?.ok
+              {submitResult?.ok
                 ? "Score delivered to the Ministry of Magic."
                 : submitResult
                 ? submitResult.error || "The owl got lost. Try again later."
