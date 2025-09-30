@@ -143,9 +143,8 @@ export default function Question4() {
         </MagicParagraph>
         <MagicParagraph>
           A faint hum reaches your ears — the sound seems almost alive. You notice that as the fountain ripples, the tones vary subtly in pitch and duration. Leaning closer, you realize the hum isn’t random: it feels like it forms shapes.
-        </MagicParagraph>
-        <MagicParagraph>
-          A soft breeze carries a whisper: "Sometimes, what you hear is as important as what you see."
+        </MagicParagraph>        <MagicParagraph>
+          A soft breeze carries a whisper: &quot;Sometimes, what you hear is as important as what you see.&quot;
         </MagicParagraph>
         <MagicParagraph>
           As the sunlight dances on the water, glints of gold highlight some patterns in the ripples. You sense that by looking at the sound itself, a secret message might appear.
