@@ -1,3 +1,14 @@
+// This page is currently disabled
+export default function Users() {
+  return (
+    <div>
+      <h1>Users Page</h1>
+      <p>This page is currently under development.</p>
+    </div>
+  );
+}
+
+/*
 // "use client";
 // import { useEffect, useState } from "react";
 // import { collection, getDocs, DocumentData } from "firebase/firestore";
@@ -47,7 +58,7 @@
 //     };
 
 //     fetchUsers();
-//   }, []); 
+//   }, []);
 
 //   const handleCopyEmails = () => {
 //     if (users.length === 0) return;
@@ -155,5 +166,5 @@
 //     </>
 //   );
 // }
-
+*/ 
 // export default Users;
