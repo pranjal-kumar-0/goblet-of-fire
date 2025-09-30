@@ -1,5 +1,6 @@
 import Link from "next/link";
 import GameNavbar from "@/components/GameNavbar";
+import Image from "next/image";
 
 function GameContent() {
     return (
@@ -29,6 +30,11 @@ function GameContent() {
                     </button>
                 </Link>
             </div>
+            <Link href="/leaderboard" className="fixed bottom-8 right-8">
+                <div className="w-16 h-16 rounded-full bg-yellow-400/30 backdrop-blur-sm flex items-center justify-center shadow-[0_0_20px_rgba(255,215,0,0.7)] hover:scale-110 hover:shadow-[0_0_30px_rgba(255,215,0,1)] transition-all duration-300 border-2 border-yellow-600/50">
+                    <span className="text-4xl" role="img" aria-label="Leaderboard">🏆</span>
+                </div>
+            </Link>
         </>
     );
 }
