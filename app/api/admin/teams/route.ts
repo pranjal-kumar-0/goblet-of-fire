@@ -13,7 +13,7 @@ async function verifyAdmin(authHeader: string | null) {
     const decodedToken = await getAuth().verifyIdToken(idToken);
     
     // Add your admin email check here
-    const adminEmails = [process.env.ADMIN_EMAIL || 'admin@example.com'];
+    const adminEmails = [process.env.NEXT_ADMIN_EMAIL || 'dumbledore@hogwarts.edu'];
     
     if (!adminEmails.includes(decodedToken.email || '')) {
       return null;
