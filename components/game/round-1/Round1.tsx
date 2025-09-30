@@ -7,6 +7,9 @@ import React, {
   useCallback,
 } from "react";
 import { style, shadows } from "./styles";
+import QuizQuestion from "./QuizQuestion";
+import VideoQuizQuestion from "./VideoQuizQuestion";
+import CodeQuestion from "./CodeQuestion";
 
 const iconProps = {
   width: 22,
@@ -238,51 +241,49 @@ const Round1: React.FC = () => {
   const [codeSubmitting, setCodeSubmitting] = useState<{ [qid: string]: boolean }>(
     {}
   );
-
   const codeEditorRefs = useRef<{ [qid: string]: HTMLTextAreaElement | null }>({});
   const pendingSelections = useRef<{ [qid: string]: { start: number; end: number } | null }>({});
   const [videoWatched, setVideoWatched] = useState<{ [qid: string]: boolean }>({});
   const [showVideoGate, setShowVideoGate] = useState<boolean>(false);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
   const currentQuestion = useMemo(
     (): Question | null => questions[currentIndex] || null,
     [questions, currentIndex]
   );
 
   // DevTools protection
-  useEffect(() => {
-    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+  // useEffect(() => {
+  //   const handleContextMenu = (e: MouseEvent) => e.preventDefault();
     
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        e.key === "F12" ||
-        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
-        (e.ctrlKey && e.key === "U")
-      ) {
-        e.preventDefault();
-      }
-    };
+  //   const handleKeyDown = (e: KeyboardEvent) => {
+  //     if (
+  //       e.key === "F12" ||
+  //       (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+  //       (e.ctrlKey && e.key === "U")
+  //     ) {
+  //       e.preventDefault();
+  //     }
+  //   };
 
-    const detectDevTools = () => {
-      const before = new Date();
-      debugger;
-      const after = new Date();
-      if (after.getTime() - before.getTime() > 100) {
-        alert("DevTools detected! Please close it.");
-        window.location.reload();
-      }
-    };
+  //   const detectDevTools = () => {
+  //     const before = new Date();
+  //     debugger;
+  //     const after = new Date();
+  //     if (after.getTime() - before.getTime() > 100) {
+  //       alert("DevTools detected! Please close it.");
+  //       window.location.reload();
+  //     }
+  //   };
 
-    document.addEventListener("contextmenu", handleContextMenu);
-    document.addEventListener("keydown", handleKeyDown);
-    const interval = setInterval(detectDevTools, 1000);
+  //   document.addEventListener("contextmenu", handleContextMenu);
+  //   document.addEventListener("keydown", handleKeyDown);
+  //   const interval = setInterval(detectDevTools, 1000);
 
-    return () => {
-      document.removeEventListener("contextmenu", handleContextMenu);
-      document.removeEventListener("keydown", handleKeyDown);
-      clearInterval(interval);
-    };
-  }, []);
+  //   return () => {
+  //     document.removeEventListener("contextmenu", handleContextMenu);
+  //     document.removeEventListener("keydown", handleKeyDown);
+  //     clearInterval(interval);
+  //   };
+  // }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -474,162 +475,24 @@ const Round1: React.FC = () => {
   const isCorrectFeedback = Boolean(
     currentSelectedId && isLocked && currentValidated?.isCorrect
   );
-
-  const CodeQuestionEditor: React.FC<{ question: Question }> = ({ question }) => {
-    const qid = question.id;
-    const code = codeAnswers[qid] ?? question.codeTemplate ?? "";
-    const status = codeCompileStatus[qid];
-    const submittedCode = Boolean(selected[qid]);
-    const running = status?.running;
-    const passed = status?.passed ?? null;
-    const lines = code.split("\n");
-    const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-    useEffect(() => {
-      const textarea = textareaRef.current;
-      if (!textarea) return;
-      const pending = pendingSelections.current[qid];
-      if (pending) {
-        textarea.focus();
-        textarea.setSelectionRange(pending.start, pending.end);
-        pendingSelections.current[qid] = null;
-      }
-    }, [code, qid]);
-
-    const setGlobalRef = useCallback((el: HTMLTextAreaElement | null) => {
-      codeEditorRefs.current[qid] = el;
-      textareaRef.current = el;
-    }, [qid]);
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === "Tab") {
-        e.preventDefault();
-        const el = e.currentTarget;
-        const start = el.selectionStart;
-        const end = el.selectionEnd;
-        const indent = "  ";
-        const newValue = el.value.slice(0, start) + indent + el.value.slice(end);
-        handleCodeChange(qid, newValue, el);
-        requestAnimationFrame(() => {
-          el.selectionStart = el.selectionEnd = start + indent.length;
-        });
-      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
-        e.preventDefault();
-        handleCompileCode(qid);
-      }
-    };
-
-    return (
-      <div>
-        <div style={style.hint}>
-          {question.evaluationHint ||
-            "Write the required code. Use 'Compile & Test' to run automatic tests."}
-        </div>
-        <div style={style.codeWrap}>
-          <div style={style.codeShell}>
-            <div style={style.codeTopBar}>
-              <div style={style.trafficDot("#ff5f56")} />
-              <div style={style.trafficDot("#ffbd2e")} />
-              <div style={style.trafficDot("#27c93f")} />
-              <span style={{ marginLeft: 8, color: "#b9c2cc" }}>
-                {question.language || "code"} — challenge.ts
-              </span>
-            </div>
-            <div style={{ position: "relative" }}>
-              {submittedCode && (
-                <div style={style.lockOverlay}>Submitted ✓ (read-only)</div>
-              )}
-              <div style={style.editorArea}>
-                <pre aria-hidden="true" style={style.lineNumbers}>
-                  {lines.map((_, i) => (
-                    <div key={i}>{i + 1}</div>
-                  ))}
-                </pre>
-                <textarea
-                  ref={setGlobalRef}
-                  spellCheck={false}
-                  value={code}
-                  disabled={submittedCode}
-                  onKeyDown={handleKeyDown}
-                  onChange={(e) => handleCodeChange(qid, e.target.value, e.target)}
-                  style={style.textarea}
-                  aria-label="Code editor"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  autoCapitalize="off"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div style={style.codeButtons}>
-            <button
-              style={style.btn("ghost")}
-              disabled={running || submittedCode}
-              onClick={() => handleCompileCode(qid)}
-            >
-              {running ? "Compiling..." : "Compile & Test"}
-            </button>
-            <button
-              style={style.btn("primary")}
-              disabled={
-                Boolean(
-                  submittedCode ||
-                  !status ||
-                  status.passed !== true ||
-                  running ||
-                  codeSubmitting[qid]
-                )
-              }
-              onClick={() => handleSubmitCode(qid)}
-            >
-              {codeSubmitting[qid] ? "Submitting..." : "Submit Code"}
-            </button>
-          </div>
-
-          <div style={style.compileOutputBox(passed)}>
-            {running && "Running tests..."}
-            {!running && status?.output
-              ? status.output
-              : !running && !status?.output
-              ? "Awaiting compilation..."
-              : null}
-          </div>
-
-          {submittedCode && (
-            <div style={style.codeSubmittedBanner}>
-              Code submitted and validated! +{POINTS_PER_CORRECT} points.
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
   return (
     <div style={style.page}>
+      
       {showVideoGate && currentQuestion?.videoUrl && (
-        <div style={style.fullScreenGate} aria-live="polite">
-          <div style={style.gateVideoContainer}>
-            <video
-              ref={videoRef}
-              style={style.gateVideoEl}
-              controls
-              autoPlay
-              playsInline
-              preload="auto"
-              controlsList="nodownload"
-              disablePictureInPicture
-              onEnded={handleVideoEnded}
-              poster={currentQuestion.videoPoster || undefined}
-              crossOrigin="anonymous"
-            >
-              <source src={currentQuestion.videoUrl} />
-              Your browser does not support the video tag.
-            </video>
-          </div>
-          <div style={style.gateMessage}>Watch till end to unlock question</div>
-        </div>
+        <VideoQuizQuestion
+          question={currentQuestion as any}
+          currentSelectedId={currentSelectedId}
+          validatedAnswer={currentValidated}
+          isPending={isPending}
+          isLocked={isLocked}
+          isCorrectFeedback={isCorrectFeedback}
+          pointsPerCorrect={POINTS_PER_CORRECT}
+          showVideoGate={showVideoGate}
+          onOptionChange={handleOptionChange}
+          onVideoEnded={handleVideoEnded}
+        />
       )}
+
       <div style={style.card} aria-live="polite">
         <h1 style={style.title}>
           <IconLightning />
@@ -672,66 +535,68 @@ const Round1: React.FC = () => {
                 <span>Question {currentIndex + 1} of {totalQuestions}</span>
                 <span>+{POINTS_PER_CORRECT} pts per correct</span>
               </div>
-            </div>
-
+            </div>            
             {currentQuestion && !showVideoGate && (
-              <div style={style.questionBox}>
-                <h2 style={style.questionText}>{currentQuestion.text}</h2>
-
-                {isCodeQuestion(currentQuestion) ? (
-                  <CodeQuestionEditor question={currentQuestion} />
+              <>
+                {currentQuestion.videoUrl && showVideoGate ? (
+                  <VideoQuizQuestion
+                    question={currentQuestion as any}
+                    currentSelectedId={currentSelectedId}
+                    validatedAnswer={currentValidated}
+                    isPending={isPending}
+                    isLocked={isLocked}
+                    isCorrectFeedback={isCorrectFeedback}
+                    pointsPerCorrect={POINTS_PER_CORRECT}
+                    showVideoGate={showVideoGate}
+                    onOptionChange={handleOptionChange}
+                    onVideoEnded={handleVideoEnded}
+                  />
                 ) : (
                   <>
-                    <div style={style.optionsWrap}>
-                      {currentQuestion.options.map((opt) => {
-                        const isChecked = currentSelectedId === opt.id;
-                        const isCorrectForOption = isChecked && isCorrectFeedback;
-                        return (
-                          <label
-                            key={opt.id}
-                            style={style.option(isChecked, isCorrectForOption, isLocked)}
-                            aria-disabled={isLocked}
-                          >
-                            <input
-                              type="radio"
-                              name={currentQuestion.id}
-                              value={opt.id}
-                              checked={isChecked}
-                              onChange={() =>
-                                handleOptionChange(currentQuestion.id, opt.id)
-                              }                              disabled={isLocked}
-                              style={{ accentColor: "#ffd166" }}
-                            />
-                            <span>{opt.text}</span>
-                          </label>
-                        );
-                      })}
-                    </div>
+                    <h2 style={style.questionText}>{currentQuestion.text}</h2>
 
-                    {currentSelectedId && (
-                      <>
-                        {isPending && (
-                          <div style={style.validatingFeedback} aria-live="polite">
-                            Validating your answer with the Ministry...
-                          </div>
-                        )}
-                        {currentValidated && !isPending && (
-                          <div
-                            style={style.feedback(currentValidated.isCorrect)}
-                            aria-live="polite"
-                          >
-                            {currentValidated.isCorrect ? (
-                              <>Correct! +{POINTS_PER_CORRECT} points</>
-                            ) : (
-                              <>Incorrect.</>
-                            )}
-                          </div>
-                        )}
-                      </>
+                    {isCodeQuestion(currentQuestion) ? (
+                      <CodeQuestion
+                        question={currentQuestion}
+                        code={codeAnswers[currentQuestion.id] ?? currentQuestion.codeTemplate ?? ""}
+                        compileStatus={codeCompileStatus[currentQuestion.id]}
+                        isSubmitted={Boolean(selected[currentQuestion.id])}
+                        isSubmitting={codeSubmitting[currentQuestion.id] || false}
+                        pointsPerCorrect={POINTS_PER_CORRECT}
+                        onCodeChange={handleCodeChange}
+                        onCompileCode={handleCompileCode}
+                        onSubmitCode={handleSubmitCode}
+                        codeEditorRef={codeEditorRefs}
+                        pendingSelections={pendingSelections}
+                      />
+                    ) : currentQuestion.videoUrl ? (
+                      <VideoQuizQuestion
+                        question={currentQuestion as any}
+                        currentSelectedId={currentSelectedId}
+                        validatedAnswer={currentValidated}
+                        isPending={isPending}
+                        isLocked={isLocked}
+                        isCorrectFeedback={isCorrectFeedback}
+                        pointsPerCorrect={POINTS_PER_CORRECT}
+                        showVideoGate={showVideoGate}
+                        onOptionChange={handleOptionChange}
+                        onVideoEnded={handleVideoEnded}
+                      />
+                    ) : (
+                      <QuizQuestion
+                        question={currentQuestion}
+                        currentSelectedId={currentSelectedId}
+                        validatedAnswer={currentValidated}
+                        isPending={isPending}
+                        isLocked={isLocked}
+                        isCorrectFeedback={isCorrectFeedback}
+                        pointsPerCorrect={POINTS_PER_CORRECT}
+                        onOptionChange={handleOptionChange}
+                      />
                     )}
                   </>
                 )}
-              </div>
+              </>
             )}
 
             {!showVideoGate && (

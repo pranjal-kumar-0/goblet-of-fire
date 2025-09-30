@@ -13,23 +13,25 @@ export const shadows = {
 
 export const style = {
   page: {
-    minHeight: "100dvh",
+    minHeight: "100vh",
+    height: "100vh",
     color: "#f7f3e9",
-    padding: "24px",
+    padding: "8px",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     position: "relative" as const,
     overflow: "hidden" as const,
     background: "linear-gradient(to bottom, #1a1a2e 0%, #16213e 40%, #0f0f23 100%)",
-  },
-  card: {
-    width: "min(900px, 100%)",
+  },  card: {
+    width: "min(1000px, 95vw)",
+    maxHeight: "95vh",
+    overflowY: "auto" as const,
     background:
       "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04))",
     border: "1px solid rgba(255,255,255,0.10)",
     borderRadius: "16px",
-    padding: "28px 24px",
+    padding: "28px 32px",
     boxShadow: "0 10px 40px rgba(0,0,0,0.55)",
     backdropFilter: "blur(6px)",
     textAlign: "center" as const,
@@ -46,10 +48,9 @@ export const style = {
     color: "#ffd166",
     textShadow: shadows.glowGold,
     filter: "drop-shadow(0 0 4px rgba(255,209,102,0.2))",
-  },
-  progressWrap: {
-    margin: "18px auto 24px",
-    maxWidth: 680,
+  },  progressWrap: {
+    margin: "20px auto 28px",
+    maxWidth: 800,
     textShadow: shadows.subtleLight,
   },
   progressMeta: {
@@ -77,44 +78,41 @@ export const style = {
     background: "linear-gradient(90deg, #ffd166, #f77f00, #e85d04 120%)",
     transition: "width 280ms ease",
     boxShadow: "0 0 12px 2px rgba(255,209,102,0.35)",
-  }),
-  questionBox: {
+  }),  questionBox: {
     border: "1px solid rgba(255,255,255,0.12)",
     borderRadius: "14px",
-    padding: "20px 20px 22px",
-    margin: "0 auto 18px",
+    padding: "28px 32px",
+    margin: "0 auto 24px",
     background:
       "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))",
-    maxWidth: 720,
+    maxWidth: 800,
     textAlign: "left" as const,
     boxShadow:
       "0 14px 32px -8px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06)",
     position: "relative" as const,
-  },
-  questionText: {
-    fontSize: "22px",
-    margin: "0 0 16px",
+  },questionText: {
+    fontSize: "26px",
+    margin: "0 0 24px",
     color: "#f8efe1",
     textAlign: "center" as const,
     fontWeight: 600,
     letterSpacing: 0.4,
     textShadow:
       "0 1px 2px rgba(0,0,0,0.4), 0 0 4px rgba(255,209,102,0.1)",
-  },
-  optionsWrap: {
+  },  optionsWrap: {
     display: "grid",
-    gap: 12,
+    gap: 18,
     justifyItems: "stretch" as const,
-  },
-  option: (
+    marginTop: 8,
+  },  option: (
     checked: boolean,
     isCorrectFeedback: boolean,
     locked: boolean
   ): CSSProperties => ({
     display: "flex",
     alignItems: "center",
-    gap: "10px",
-    padding: "14px 16px",
+    gap: "12px",
+    padding: "20px 24px",
     borderRadius: "12px",
     cursor: locked ? "default" : "pointer",
     background: checked
@@ -126,6 +124,8 @@ export const style = {
     position: "relative" as const,
     textShadow: "0 1px 2px rgba(0,0,0,0.4)",
     backdropFilter: "blur(2px)",
+    fontSize: "16px",
+    fontWeight: 500,
     ...(checked && {
       boxShadow:
         "0 0 0 1px rgba(255,209,102,0.55), 0 6px 18px -4px rgba(255,209,102,0.35)",
@@ -172,13 +172,12 @@ export const style = {
     fontWeight: 500,
     textShadow: shadows.softGold,
     boxShadow: "0 0 14px -4px rgba(255,209,102,0.55)",
-  },
-  controls: {
+  },  controls: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    gap: "14px",
-    marginTop: "14px",
+    gap: "18px",
+    marginTop: "24px",
     flexWrap: "wrap" as const,
     textShadow: "0 1px 2px rgba(0,0,0,0.4)",
   },
@@ -229,8 +228,7 @@ export const style = {
     boxShadow:
       "0 0 0 1px rgba(46,213,115,0.35), 0 0 22px -6px rgba(46,213,115,0.55)",
     textShadow: shadows.jade,
-  },
-  fullScreenGate: {
+  },  fullScreenGate: {
     position: "fixed" as const,
     inset: 0,
     background:
@@ -240,13 +238,11 @@ export const style = {
     flexDirection: "column" as const,
     justifyContent: "center",
     alignItems: "center",
-    padding: "20px",
-    gap: "22px",
-  },
-  gateVideoContainer: {
-    width: "min(100%, 1280px)",
-    maxHeight: "80dvh",
-    aspectRatio: "16 / 9",
+    padding: "0",
+    gap: "0",
+  },  gateVideoContainer: {
+    width: "min(100%, 1800px)",
+    height: "85vh",
     position: "relative" as const,
     background: "#000",
     borderRadius: "12px",
@@ -319,19 +315,19 @@ export const style = {
     minWidth: 40,
     lineHeight: "20px",
     textShadow: "0 1px 1px rgba(0,0,0,0.5)",
-  },
-  textarea: {
+  },  textarea: {
     flex: 1,
-    fontSize: 13,
-    lineHeight: "20px",
-    padding: "10px 14px 10px 14px",
+    fontSize: 14,
+    lineHeight: "22px",
+    padding: "16px 18px",
     border: "none",
     outline: "none",
     resize: "vertical" as const,
     background: "transparent",
     color: "#e9edf3",
     fontFamily: "'Source Code Pro', ui-monospace, Menlo, Consolas, monospace",
-    minHeight: 260,
+    minHeight: 450,
+    maxHeight: "50vh",
     textShadow: "0 1px 1px rgba(0,0,0,0.5)",
   },
   hint: {
