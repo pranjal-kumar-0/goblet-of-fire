@@ -508,7 +508,7 @@ const Round1: React.FC = () => {
                 ) : (
                   <>
                     <h2 style={style.questionText}>{currentQuestion.text}</h2>
-                    <div style={{ fontSize: 14, color: "#ffd166", marginBottom: 10, textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
+                    <div style={{ fontSize: 14, color: "#ffd166", marginBottom: 10, marginTop: -15, textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
                       Difficulty: {currentQuestion.difficulty}
                     </div>
 
