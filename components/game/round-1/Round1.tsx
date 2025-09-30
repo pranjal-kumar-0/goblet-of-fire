@@ -388,9 +388,6 @@ const Round1: React.FC = () => {
   const goNext = (): void => {
     if (canGoNext) setCurrentIndex((i) => i + 1);
   };
-  const goPrev = (): void => {
-    if (currentIndex > 0) setCurrentIndex((i) => i - 1);
-  };
 
   const calculateScore = (): number => {
     if (questions.length === 0) return 0;
@@ -558,14 +555,6 @@ const Round1: React.FC = () => {
 
             {!showVideoGate && (
               <div style={style.controls}>
-                <button
-                  style={style.btn("ghost")}
-                  onClick={goPrev}
-                  disabled={currentIndex === 0}
-                >
-                  ← Previous
-                </button>
-
                 {currentIndex < totalQuestions - 1 ? (
                   <button
                     style={style.btn("primary")}
