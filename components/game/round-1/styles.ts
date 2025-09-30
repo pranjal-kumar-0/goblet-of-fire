@@ -209,8 +209,7 @@ export const style = {  page: {
     marginTop: "24px",
     flexWrap: "wrap" as const,
     textShadow: "0 1px 2px rgba(0,0,0,0.4)",
-  },
-  btn: (variant: "ghost" | "primary" = "ghost"): CSSProperties => {
+  },  btn: (variant: "ghost" | "primary" = "ghost", disabled: boolean = false): CSSProperties => {
     const base: CSSProperties = {
       padding: "11px 18px",
       borderRadius: "12px",
@@ -218,7 +217,7 @@ export const style = {  page: {
       color: "#f7f3e9",
       background:
         "linear-gradient(145deg, rgba(255,255,255,0.07), rgba(255,255,255,0.03))",
-      cursor: "pointer",
+      cursor: disabled ? "not-allowed" : "pointer",
       transition: "all 160ms ease",
       fontWeight: 600,
       fontSize: 14,
@@ -228,18 +227,23 @@ export const style = {  page: {
       gap: 6,
       textShadow: "0 1px 2px rgba(0,0,0,0.4)",
       backdropFilter: "blur(3px)",
+      opacity: disabled ? 0.5 : 1,
     };
 
     if (variant === "primary") {
       return {
         ...base,
-        background:
-          "linear-gradient(145deg, rgba(255,209,102,0.30), rgba(255,209,102,0.12))",
-        borderColor: "rgba(255,209,102,0.65)",
-        color: "#ffd166",
-        boxShadow:
-          "0 0 0 1px rgba(255,209,102,0.55), 0 8px 24px -8px rgba(255,209,102,0.55)",
-        textShadow: shadows.softGold,
+        background: disabled 
+          ? "linear-gradient(145deg, rgba(120,120,120,0.20), rgba(120,120,120,0.08))"
+          : "linear-gradient(145deg, rgba(255,209,102,0.30), rgba(255,209,102,0.12))",
+        borderColor: disabled 
+          ? "rgba(120,120,120,0.35)" 
+          : "rgba(255,209,102,0.65)",
+        color: disabled ? "#999" : "#ffd166",
+        boxShadow: disabled 
+          ? "0 0 0 1px rgba(120,120,120,0.25), 0 4px 12px -4px rgba(120,120,120,0.25)"
+          : "0 0 0 1px rgba(255,209,102,0.55), 0 8px 24px -8px rgba(255,209,102,0.55)",
+        textShadow: disabled ? "0 1px 1px rgba(0,0,0,0.5)" : shadows.softGold,
       };
     }
     return base;
