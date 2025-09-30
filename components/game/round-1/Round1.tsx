@@ -89,7 +89,6 @@ interface Question {
   codeTemplate?: string;
   language?: string;
   evaluationHint?: string;
-  correctAnswer?: number;
   difficulty?: string;
   isCodeQuestion?: boolean;
 }
@@ -155,44 +154,26 @@ async function fetchRound1Questions(): Promise<Question[]> {
       options: optionsArray.map((opt: string, index: number) => ({
         id: `${item.id}o${index + 1}`,
         text: isCode ? formatCodeText(opt) : opt,
-      })),
-      videoUrl: item.videoUrl || null,
+      })),      videoUrl: item.videoUrl || null,
       videoPoster: null,
       videoCaption: null,
-      correctAnswer: item.correctAnswer,
       difficulty: item.difficulty,
       isCodeQuestion: isCode,
     };
   });
 
-  const codeQuestion: Question = {
-    id: "q6",
-    text: "Code Challenge: Implement a function sum(a, b) that returns the sum of two numbers.",
-    options: [],
-    codeTemplate: `// Implement sum so all tests pass
-// Return the sum of a and b
-export function sum(a: number, b: number) {
-  // your code here
-}
-`,
-    language: "typescript",
-    evaluationHint:
-      "Implement the sum function correctly. Use 'Compile & Test' to verify with unit tests, then 'Submit Code' when all pass.",
-    difficulty: "code",
-  };
-
-  return [...apiQuestions, codeQuestion];
+  return [...apiQuestions];
 }
 
 async function validateAnswerFromServer(
   question: Question,
   selectedOptionId: string
 ): Promise<ValidationResult> {
-  const correctIndex = question.correctAnswer! - 1;
-  const correctOptionId = question.options[correctIndex].id;
+  // Since correctAnswer is not available in frontend, we'll need to validate on server
+  // For now, we'll just return a dummy validation - this should be handled by the answer API
   return {
-    isCorrect: selectedOptionId === correctOptionId,
-    correctOptionId,
+    isCorrect: true, // This should be determined by server
+    correctOptionId: selectedOptionId,
   };
 }
 
@@ -270,6 +251,8 @@ const Round1: React.FC = () => {
   const pendingSelections = useRef<{ [qid: string]: { start: number; end: number } | null }>({});
   const [videoWatched, setVideoWatched] = useState<{ [qid: string]: boolean }>({});
   const [showVideoGate, setShowVideoGate] = useState<boolean>(false);
+  const [timerData, setTimerData] = useState<{startTime: string, endTime: string, status: number} | null>(null);
+  const [remainingTime, setRemainingTime] = useState<number>(0);
   const currentQuestion = useMemo(
     (): Question | null => questions[currentIndex] || null,
     [questions, currentIndex]
@@ -310,9 +293,13 @@ const Round1: React.FC = () => {
     (async () => {
       try {
         setLoading(true);
-        const qs = await fetchRound1Questions();
+        const [questionsRes, timerRes] = await Promise.all([
+          fetchRound1Questions(),
+          fetch('/api/timer').then(res => res.json()).catch(err => { console.error('Timer fetch failed:', err); return null; })
+        ]);
         if (mounted) {
-          setQuestions(qs || []);
+          setQuestions(questionsRes || []);
+          setTimerData(timerRes);
           setLoadError("");
         }
       } catch {
@@ -337,6 +324,22 @@ const Round1: React.FC = () => {
       setShowVideoGate(false);
     }
   }, [currentQuestion?.id, currentQuestion?.videoUrl, videoWatched]);
+  useEffect(() => {
+    if (!timerData) return;
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const end = new Date(timerData.endTime).getTime();
+      const rem = Math.max(0, Math.floor((end - now) / 1000));
+      setRemainingTime(rem);
+      if (rem <= 0 && !submitted) {
+        setTimeout(() => {
+          window.location.href = '/game';
+        }, 3000); 
+        finishQuiz();
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timerData, submitted]);
 
   const handleVideoEnded = useCallback(() => {
     if (!currentQuestion) return;
@@ -505,7 +508,20 @@ const Round1: React.FC = () => {
   const isPending = false; // Remove pending state
   const isCorrectFeedback = false; // Remove correct feedback
   return (
-    <div style={style.page}>
+    <div style={style.page}>      {timerData && (
+        <div className={`
+          fixed top-5 left-5 z-50
+          bg-gradient-to-r from-yellow-600 to-yellow-500
+          text-yellow-100 
+          px-4 py-2 rounded-lg
+          border-2 border-yellow-700
+          shadow-lg
+          font-bold text-lg
+          ${remainingTime <= 180 ? 'animate-pulse bg-gradient-to-r from-red-600 to-red-500 border-red-700' : ''}
+        `}>
+          Time: {Math.floor(remainingTime / 60).toString().padStart(2, '0')}:{(remainingTime % 60).toString().padStart(2, '0')}
+        </div>
+      )}
       
       {showVideoGate && currentQuestion?.videoUrl && (
         <VideoQuizQuestion
@@ -723,9 +739,7 @@ const Round1: React.FC = () => {
               </div>
             )}
           </>
-        )}
-
-        {!loading && !loadError && submitted && (
+        )}        {!loading && !loadError && submitted && (
           <div style={style.scoreBox}>
             <div
               style={{
@@ -735,7 +749,7 @@ const Round1: React.FC = () => {
                 textShadow: shadows.jade,
               }}
             >
-              Results are in!
+              {remainingTime <= 0 ? "Time's Up!" : "Results are in!"}
             </div>
             <div
               style={{
@@ -744,24 +758,33 @@ const Round1: React.FC = () => {
                 textShadow: "0 1px 1px rgba(0,0,0,0.5)",
               }}
             >
-              {submitResult?.ok
+              {remainingTime <= 0 
+                ? "The time for Round 1 has expired. Redirecting you back to the game menu..."
+                : submitResult?.ok
                 ? "Score delivered to the Ministry of Magic."
                 : submitResult
                 ? submitResult.error || "The owl got lost. Try again later."
                 : "—"}
             </div>
           </div>
-        )}
-
-        {!loading && !loadError && totalQuestions === 0 && (
+        )}{!loading && !loadError && totalQuestions === 0 && (
           <div
             style={{
               marginTop: 24,
               fontSize: 16,
               textShadow: "0 1px 2px rgba(0,0,0,0.5)",
+              textAlign: "center" as const,
             }}
           >
-            No questions found for Round 1.
+            <div style={{ marginBottom: 20 }}>
+              No questions found for Round 1.
+            </div>
+            <button
+              style={style.btn("primary", false)}
+              onClick={() => window.location.href = '/game'}
+            >
+              Return to Game Menu
+            </button>
           </div>
         )}
       </div>

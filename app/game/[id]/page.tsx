@@ -13,13 +13,12 @@ export default function Page({
 }) {
   const { id } = use(params);
   const router = useRouter();
-  const roundId = Number(id);
 
   const renderRound = () => {
-    switch (roundId) {
-      case 1: return <Round1 />;
-      case 2: return <Round2 />;
-      case 3: return <Round3 />;
+    switch (id) {
+      case "trivia-time": return <Round1 />;
+      case "bingo-time": return <Round2 />;
+      case "find-the-trophy": return <Round3 />;
       default: 
         return (
           <div className="min-h-screen flex items-center justify-center">

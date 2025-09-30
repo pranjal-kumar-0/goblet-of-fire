@@ -13,14 +13,12 @@ export const shadows = {
 
 export const style = {  page: {
     minHeight: "100vh",
-    height: "100vh",
     color: "#f7f3e9",
-    padding: "8px",
+    padding: "20px 8px",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
     position: "relative" as const,
-    overflow: "hidden" as const,
     background: "linear-gradient(to bottom, #1a1a2e 0%, #16213e 40%, #0f0f23 100%)",
     userSelect: "none" as const,
     WebkitUserSelect: "none" as const,
@@ -30,8 +28,6 @@ export const style = {  page: {
     WebkitTapHighlightColor: "transparent",
   },card: {
     width: "min(1000px, 95vw)",
-    maxHeight: "95vh",
-    overflowY: "auto" as const,
     background:
       "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04))",
     border: "1px solid rgba(255,255,255,0.10)",

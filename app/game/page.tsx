@@ -57,7 +57,7 @@ function GameContent() {
                 <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
                 {/* Round 1 Button */}
                 {gameStatus.Round1 ? (
-                    <Link href={'/game/1'}>
+                    <Link href={'/game/trivia-time'}>
                         <button className="px-8 py-4 rounded-lg bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 text-black font-['Cinzel_Decorative'] text-lg font-semibold shadow-[0_0_20px_rgba(255,215,0,0.7)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,215,0,1)] transition-all duration-300 border-2 border-yellow-600/50">
                              Round 1
                         </button>
@@ -73,7 +73,7 @@ function GameContent() {
 
                 {/* Round 2 Button */}
                 {gameStatus.Round2 ? (
-                    <Link href={'/game/2'}>
+                    <Link href={'/game/bingo-time'}>
                         <button className="px-8 py-4 rounded-lg bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 text-black font-['Cinzel_Decorative'] text-lg font-semibold shadow-[0_0_20px_rgba(255,215,0,0.7)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,215,0,1)] transition-all duration-300 border-2 border-yellow-600/50">
                             Round 2
                         </button>
@@ -89,7 +89,7 @@ function GameContent() {
 
                 {/* Round 3 Button */}
                 {gameStatus.Round3 ? (
-                    <Link href={'/game/3'}>
+                    <Link href={'/game/find-the-trophy'}>
                         <button className="px-8 py-4 rounded-lg bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-500 text-black font-['Cinzel_Decorative'] text-lg font-semibold shadow-[0_0_20px_rgba(255,215,0,0.7)] hover:scale-105 hover:shadow-[0_0_30px_rgba(255,215,0,1)] transition-all duration-300 border-2 border-yellow-600/50">
                             Round 3
                         </button>
