@@ -76,6 +76,7 @@ interface Question {
   evaluationHint?: string;
   correctAnswer?: number;
   difficulty?: string;
+  isCodeQuestion?: boolean;
 }
 interface SubmitScoreParams { userId?: string | null; score: number; total: number; round?: number; }
 interface SubmitResult { ok: boolean; error?: string; }
@@ -99,24 +100,56 @@ async function fetchRound1Questions(): Promise<Question[]> {
       console.error('Failed to fetch attempted questions:', error);
     }
   }
-  
-  const filteredQuestions = data.questions.filter((item: any) => 
+    const filteredQuestions = data.questions.filter((item: any) => 
     !attemptedQuestionIds.includes(item.id)
   );
   
-  const apiQuestions = filteredQuestions.map((item: any) => ({
-    id: item.id,
-    text: item.question,
-    options: (item.option || item.options).map((opt: string, index: number) => ({
-      id: `${item.id}o${index + 1}`,
-      text: opt,
-    })),
-    videoUrl: item.videoUrl || null,
-    videoPoster: null,
-    videoCaption: null,
-    correctAnswer: item.correctAnswer,
-    difficulty: item.difficulty,
-  }));
+  // Helper function to format code text by unescaping and adding proper line breaks
+  const formatCodeText = (text: string): string => {
+    return text
+      .replace(/\\n/g, '\n')  // Convert \n to actual line breaks
+      .replace(/\\"/g, '"')   // Convert \" to actual quotes
+      .replace(/\\\\/g, '\\'); // Convert \\ to actual backslashes
+  };
+  
+  // Helper function to check if a question contains code
+  const isCodeQuestion = (question: string, options: string[]): boolean => {
+    // Check if question or any option contains code patterns
+    const codePatterns = [
+      /def\s+\w+/,           // Python function definition
+      /print\s*\(/,          // Print statements
+      /for\s+\w+\s+in/,      // For loops
+      /if\s+.*:/,            // If statements
+      /lambda\s+/,           // Lambda functions
+      /range\s*\(/,          // Range function
+      /\[.*\]/,              // List syntax
+      /\{.*\}/,              // Dict syntax
+    ];
+    
+    const textToCheck = question + ' ' + options.join(' ');
+    return codePatterns.some(pattern => pattern.test(textToCheck));
+  };
+  
+  const apiQuestions = filteredQuestions.map((item: any) => {
+    const questionText = item.question || '';
+    const optionsArray = item.option || item.options || [];
+    const isCode = isCodeQuestion(questionText, optionsArray);
+    
+    return {
+      id: item.id,
+      text: isCode ? formatCodeText(questionText) : questionText,
+      options: optionsArray.map((opt: string, index: number) => ({
+        id: `${item.id}o${index + 1}`,
+        text: isCode ? formatCodeText(opt) : opt,
+      })),
+      videoUrl: item.videoUrl || null,
+      videoPoster: null,
+      videoCaption: null,
+      correctAnswer: item.correctAnswer,
+      difficulty: item.difficulty,
+      isCodeQuestion: isCode,
+    };
+  });
 
   const codeQuestion: Question = {
     id: "q6",
@@ -531,18 +564,81 @@ const Round1: React.FC = () => {
                     showVideoGate={showVideoGate}
                     onOptionChange={handleOptionChange}
                     onVideoEnded={handleVideoEnded}
-                  />
-                ) : (
+                  />                ) : (
                   <>
-                    <h2 style={{
-                      ...style.questionText,
-                      userSelect: "none",
-                      WebkitUserSelect: "none",
-                      MozUserSelect: "none",
-                      msUserSelect: "none",
-                      WebkitTouchCallout: "none",
-                      WebkitTapHighlightColor: "transparent",
-                    }}>{currentQuestion.text}</h2>
+                    {/* Helper function to detect and render code in question text */}
+                    {(() => {
+                      const isCodeText = (text: string): boolean => {
+                        const codePatterns = [
+                          /def\s+\w+/,          
+                          /print\s*\(/,        
+                          /for\s+\w+\s+in/,      
+                          /if\s+.*:/,            
+                          /lambda\s+/,        
+                          /range\s*\(/,        
+                          /\[.*\]/,            
+                          /\{.*\}/,              
+                          /=\s*\[/,             
+                          /=\s*\{/,              
+                        ];
+                        
+                        return codePatterns.some(pattern => pattern.test(text));
+                      };
+
+                      const renderQuestionText = (text: string) => {
+                        if (isCodeText(text)) {
+                          return (
+                            <div>                              <h2 style={{
+                                ...style.questionText,
+                                userSelect: "none",
+                                WebkitUserSelect: "none",
+                                MozUserSelect: "none",
+                                msUserSelect: "none",
+                                WebkitTouchCallout: "none",
+                                WebkitTapHighlightColor: "transparent",
+                                marginBottom: "12px"
+                              }}>
+                                Fix the code:
+                              </h2>
+                              <pre style={{
+                                fontFamily: "'Fira Code', 'Courier New', monospace",
+                                fontSize: "16px",
+                                backgroundColor: "rgba(0, 0, 0, 0.4)",
+                                padding: "16px",
+                                borderRadius: "8px",
+                                margin: "0 0 16px 0",
+                                whiteSpace: "pre-wrap",
+                                wordBreak: "break-word",
+                                border: "1px solid rgba(255, 209, 102, 0.3)",
+                                color: "#e9ddcf",
+                                lineHeight: "1.5",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                                textAlign: "left", 
+                              }}>
+                                <code style={{ textAlign: "left" }}>{text}</code>
+                              </pre>
+                            </div>
+                          );
+                        }
+                        
+                        return (
+                          <h2 style={{
+                            ...style.questionText,
+                            userSelect: "none",
+                            WebkitUserSelect: "none",
+                            MozUserSelect: "none",
+                            msUserSelect: "none",
+                            WebkitTouchCallout: "none",
+                            WebkitTapHighlightColor: "transparent",
+                          }}>
+                            {text}
+                          </h2>
+                        );
+                      };
+
+                      return renderQuestionText(currentQuestion.text);
+                    })()}
+                    
                     <div style={{ fontSize: 14, color: "#ffd166", marginBottom: 10, marginTop: -15, textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
                       Difficulty: {currentQuestion.difficulty}
                     </div>
