@@ -88,7 +88,7 @@ async function fetchRound1Questions(): Promise<Question[]> {
   const apiQuestions = data.questions.map((item: any) => ({
     id: item.id,
     text: item.question,
-    options: item.option.map((opt: string, index: number) => ({
+    options: (item.option || item.options).map((opt: string, index: number) => ({
       id: `${item.id}o${index + 1}`,
       text: opt,
     })),
