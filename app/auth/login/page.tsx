@@ -35,6 +35,7 @@ export default function Login() {
 
       // Store team info in localStorage for the game
       localStorage.setItem('teamInfo', JSON.stringify(response.data.team));
+      localStorage.setItem('teamId', response.data.team.teamId);
       
       // Redirect to game
       router.push('/game');

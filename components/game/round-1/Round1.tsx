@@ -283,22 +283,28 @@ const Round1: React.FC = () => {
     setShowVideoGate(false);
   }, [currentQuestion]);
 
-  const totalQuestions = questions.length;
-
-  const handleOptionChange = async (
+  const totalQuestions = questions.length;  const handleOptionChange = async (
     questionId: string,
     optionId: string
   ): Promise<void> => {
+    // Prevent changing answer if already selected
     setSelected((prev) => {
       if (prev[questionId]) return prev;
       return { ...prev, [questionId]: optionId };
     });
+    
+    // If answer was already selected, don't proceed
+    if (selected[questionId]) return;
+    
     setPendingValidations((prev) => [...prev, questionId]);
     try {
       const question = questions.find(q => q.id === questionId);
       if (!question) throw new Error("Question not found");
+      
+      // Validate answer locally first
       const result = await validateAnswerFromServer(question, optionId);
       setValidatedAnswers((prev) => ({ ...prev, [questionId]: result }));
+      
     } catch {
       setValidatedAnswers((prev) => ({
         ...prev,
@@ -306,6 +312,44 @@ const Round1: React.FC = () => {
       }));
     } finally {
       setPendingValidations((prev) => prev.filter((id) => id !== questionId));
+    }
+  };
+
+  const submitAnswerToBackend = async (questionId: string, optionId: string): Promise<void> => {
+    // Extract the index from optionId (e.g., "q1o2" -> index 1)
+    const optionIndex = parseInt(optionId.slice(-1)) - 1; // Convert from 1-based to 0-based
+    
+    // Get teamId from localStorage
+    const teamId = localStorage.getItem('teamId');
+    if (!teamId) {
+      console.error('Team ID not found in localStorage');
+      return;
+    }
+    
+    // Send answer to backend
+    try {
+      const response = await fetch('/api/answer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          teamId: teamId,
+          questionId: questionId,
+          selectedAnswer: optionIndex
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const responseData = await response.json();
+      console.log('Answer submitted successfully:', responseData);
+      
+    } catch (error) {
+      console.error('Failed to submit answer to backend:', error);
+      // Don't block the UI even if backend submission fails
     }
   };
 
@@ -384,9 +428,14 @@ const Round1: React.FC = () => {
       currentIndex < totalQuestions - 1
     );
   })();
-
   const goNext = (): void => {
-    if (canGoNext) setCurrentIndex((i) => i + 1);
+    if (canGoNext) {
+      // Submit current answer to backend before moving to next question
+      if (currentQuestion && currentSelectedId) {
+        submitAnswerToBackend(currentQuestion.id, currentSelectedId);
+      }
+      setCurrentIndex((i) => i + 1);
+    }
   };
   const goPrev = (): void => {
     if (currentIndex > 0) setCurrentIndex((i) => i - 1);
@@ -401,8 +450,12 @@ const Round1: React.FC = () => {
     }, 0);
     return correctCount * POINTS_PER_CORRECT;
   };
-
   const finishQuiz = async (): Promise<void> => {
+    // Submit the last answer before finishing
+    if (currentQuestion && currentSelectedId) {
+      await submitAnswerToBackend(currentQuestion.id, currentSelectedId);
+    }
+    
     const computed = calculateScore();
     setFinalScore(computed);
     setSubmitted(true);
