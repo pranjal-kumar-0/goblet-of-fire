@@ -261,35 +261,35 @@ const Round1: React.FC = () => {
     [questions, currentIndex]
   );
   // DevTools protection and text selection prevention
-  // useEffect(() => {
-  //   const handleContextMenu = (e: MouseEvent) => e.preventDefault();
+  useEffect(() => {
+    const handleContextMenu = (e: MouseEvent) => e.preventDefault();
     
-  //   const handleKeyDown = (e: KeyboardEvent) => {
-  //     // Prevent F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+A, Ctrl+C
-  //     if (
-  //       e.key === "F12" ||
-  //       (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
-  //       (e.ctrlKey && (e.key === "U" || e.key === "a" || e.key === "A" || e.key === "c" || e.key === "C"))
-  //     ) {
-  //       e.preventDefault();
-  //     }
-  //   };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Prevent F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+A, Ctrl+C
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+        (e.ctrlKey && (e.key === "U" || e.key === "a" || e.key === "A" || e.key === "c" || e.key === "C"))
+      ) {
+        e.preventDefault();
+      }
+    };
 
-  //   const handleSelectStart = (e: Event) => e.preventDefault();
-  //   const handleDragStart = (e: Event) => e.preventDefault();
+    const handleSelectStart = (e: Event) => e.preventDefault();
+    const handleDragStart = (e: Event) => e.preventDefault();
 
-  //   document.addEventListener("contextmenu", handleContextMenu);
-  //   document.addEventListener("keydown", handleKeyDown);
-  //   document.addEventListener("selectstart", handleSelectStart);
-  //   document.addEventListener("dragstart", handleDragStart);
+    document.addEventListener("contextmenu", handleContextMenu);
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("selectstart", handleSelectStart);
+    document.addEventListener("dragstart", handleDragStart);
 
-  //   return () => {
-  //     document.removeEventListener("contextmenu", handleContextMenu);
-  //     document.removeEventListener("keydown", handleKeyDown);
-  //     document.removeEventListener("selectstart", handleSelectStart);
-  //     document.removeEventListener("dragstart", handleDragStart);
-  //   };
-  // }, []);
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("selectstart", handleSelectStart);
+      document.removeEventListener("dragstart", handleDragStart);
+    };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -688,18 +688,16 @@ const Round1: React.FC = () => {
             )}
 
             {!showVideoGate && (
-              <div style={style.controls}>
-
-                {currentIndex < totalQuestions - 1 ? (
+              <div style={style.controls}>                {currentIndex < totalQuestions - 1 ? (
                   <button
-                    style={style.btn("primary")}
+                    style={style.btn("primary", !canGoNext)}
                     onClick={goNext}
                     disabled={!canGoNext}
                   >
                     Next →
                   </button>
                 ) : (                  <button
-                    style={style.btn("primary")}
+                    style={style.btn("primary", !currentSelectedId)}
                     onClick={finishQuiz}
                     disabled={!currentSelectedId}
                     aria-label="Finish quiz"
