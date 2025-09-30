@@ -64,6 +64,21 @@ const IconFlag: React.FC<{ title?: string }> = ({ title = "Finish" }) => (
 );
 
 interface Option { id: string; text: string; }
+
+interface ApiQuestionItem {
+  id: string;
+  question: string;
+  option?: string[];
+  options?: string[];
+  videoUrl?: string;
+  correctAnswer: number;
+  difficulty: string;
+}
+
+interface ApiResponse {
+  questions: ApiQuestionItem[];
+}
+
 interface Question {
   id: string;
   text: string;
@@ -85,7 +100,7 @@ interface ValidationResult { isCorrect: boolean; correctOptionId: string; }
 
 async function fetchRound1Questions(): Promise<Question[]> {
   const response = await fetch('/api/questions');
-  const data = await response.json();
+  const data: ApiResponse = await response.json();
   const teamId = localStorage.getItem('teamId');
   let attemptedQuestionIds: string[] = [];
   
@@ -100,7 +115,7 @@ async function fetchRound1Questions(): Promise<Question[]> {
       console.error('Failed to fetch attempted questions:', error);
     }
   }
-    const filteredQuestions = data.questions.filter((item: any) => 
+    const filteredQuestions = data.questions.filter((item: ApiQuestionItem) => 
     !attemptedQuestionIds.includes(item.id)
   );
   
@@ -129,8 +144,7 @@ async function fetchRound1Questions(): Promise<Question[]> {
     const textToCheck = question + ' ' + options.join(' ');
     return codePatterns.some(pattern => pattern.test(textToCheck));
   };
-  
-  const apiQuestions = filteredQuestions.map((item: any) => {
+    const apiQuestions = filteredQuestions.map((item: ApiQuestionItem) => {
     const questionText = item.question || '';
     const optionsArray = item.option || item.options || [];
     const isCode = isCodeQuestion(questionText, optionsArray);
