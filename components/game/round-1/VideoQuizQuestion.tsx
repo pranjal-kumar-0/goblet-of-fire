@@ -105,18 +105,18 @@ const VideoQuizQuestion: React.FC<VideoQuizQuestionProps> = ({
         </div>
       </div>
     );
-  }
-  return (
+  }  return (
     <div style={style.questionBox}>
       <div style={style.optionsWrap}>
         {question.options.map((opt) => {
           const isChecked = currentSelectedId === opt.id;
-          const isCorrectForOption = isChecked && isCorrectFeedback;
+          // Always show selected options as correct (green) regardless of actual correctness
+          const isCorrectForOption = isChecked;
           return (
             <label
               key={opt.id}
-              style={style.option(isChecked, isCorrectForOption, isLocked)}
-              aria-disabled={isLocked}
+              style={style.option(isChecked, isCorrectForOption, false)} // Never lock options
+              aria-disabled={false}
             >
               <input
                 type="radio"
@@ -124,36 +124,23 @@ const VideoQuizQuestion: React.FC<VideoQuizQuestionProps> = ({
                 value={opt.id}
                 checked={isChecked}
                 onChange={() => onOptionChange(question.id, opt.id)}
-                disabled={isLocked}
+                disabled={false} // Always allow changes
                 style={{ accentColor: "#ffd166" }}
               />
-              <span>{opt.text}</span>
+              <span style={{
+                userSelect: "none",
+                WebkitUserSelect: "none",
+                MozUserSelect: "none",
+                msUserSelect: "none",
+                WebkitTouchCallout: "none",
+                WebkitTapHighlightColor: "transparent",
+              }}>{opt.text}</span>
             </label>
           );
         })}
       </div>
 
-      {currentSelectedId && (
-        <>
-          {isPending && (
-            <div style={style.validatingFeedback} aria-live="polite">
-              Validating your answer with the Ministry...
-            </div>
-          )}
-          {validatedAnswer && !isPending && (
-            <div
-              style={style.feedback(validatedAnswer.isCorrect)}
-              aria-live="polite"
-            >
-              {validatedAnswer.isCorrect ? (
-                <>Correct! +{pointsPerCorrect} points</>
-              ) : (
-                <>Incorrect.</>
-              )}
-            </div>
-          )}
-        </>
-      )}
+      {/* Remove all feedback - no validation messages */}
     </div>
   );
 };

@@ -11,8 +11,7 @@ export const shadows = {
   lilac: "0 0 4px rgba(199,125,255,0.3)",
 };
 
-export const style = {
-  page: {
+export const style = {  page: {
     minHeight: "100vh",
     height: "100vh",
     color: "#f7f3e9",
@@ -23,7 +22,13 @@ export const style = {
     position: "relative" as const,
     overflow: "hidden" as const,
     background: "linear-gradient(to bottom, #1a1a2e 0%, #16213e 40%, #0f0f23 100%)",
-  },  card: {
+    userSelect: "none" as const,
+    WebkitUserSelect: "none" as const,
+    MozUserSelect: "none" as const,
+    msUserSelect: "none" as const,
+    WebkitTouchCallout: "none" as const,
+    WebkitTapHighlightColor: "transparent",
+  },card: {
     width: "min(1000px, 95vw)",
     maxHeight: "95vh",
     overflowY: "auto" as const,
@@ -37,6 +42,12 @@ export const style = {
     textAlign: "center" as const,
     position: "relative" as const,
     zIndex: 2,
+    userSelect: "none" as const,
+    WebkitUserSelect: "none" as const,
+    MozUserSelect: "none" as const,
+    msUserSelect: "none" as const,
+    WebkitTouchCallout: "none" as const,
+    WebkitTapHighlightColor: "transparent",
   },
   title: {
     margin: 0,
@@ -90,6 +101,12 @@ export const style = {
     boxShadow:
       "0 14px 32px -8px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.06)",
     position: "relative" as const,
+    userSelect: "none" as const,
+    WebkitUserSelect: "none" as const,
+    MozUserSelect: "none" as const,
+    msUserSelect: "none" as const,
+    WebkitTouchCallout: "none" as const,
+    WebkitTapHighlightColor: "transparent",
   },questionText: {
     fontSize: "26px",
     margin: "0 0 24px",
@@ -99,7 +116,13 @@ export const style = {
     letterSpacing: 0.4,
     textShadow:
       "0 1px 2px rgba(0,0,0,0.4), 0 0 4px rgba(255,209,102,0.1)",
-  },  optionsWrap: {
+    userSelect: "none" as const,
+    WebkitUserSelect: "none" as const,
+    MozUserSelect: "none" as const,
+    msUserSelect: "none" as const,
+    WebkitTouchCallout: "none" as const,
+    WebkitTapHighlightColor: "transparent",
+  },optionsWrap: {
     display: "grid",
     gap: 18,
     justifyItems: "stretch" as const,
@@ -126,6 +149,12 @@ export const style = {
     backdropFilter: "blur(2px)",
     fontSize: "16px",
     fontWeight: 500,
+    userSelect: "none" as const,
+    WebkitUserSelect: "none" as const,
+    MozUserSelect: "none" as const,
+    msUserSelect: "none" as const,
+    WebkitTouchCallout: "none" as const,
+    WebkitTapHighlightColor: "transparent",
     ...(checked && {
       boxShadow:
         "0 0 0 1px rgba(255,209,102,0.55), 0 6px 18px -4px rgba(255,209,102,0.35)",
@@ -134,10 +163,10 @@ export const style = {
       locked && {
         borderColor: isCorrectFeedback
           ? "rgba(46, 213, 115, 0.65)"
-          : "rgba(255, 71, 87, 0.7)",
+          : "rgba(46, 213, 115, 0.65)",
         boxShadow: isCorrectFeedback
           ? "0 0 0 1px rgba(46,213,115,0.6), 0 8px 20px -6px rgba(46,213,115,0.4)"
-          : "0 0 0 1px rgba(255,71,87,0.65), 0 8px 20px -6px rgba(255,71,87,0.45)",
+          : "0 0 0 1px rgba(46,213,115,0.6), 0 8px 20px -6px rgba(46,213,115,0.4)",
         textShadow: isCorrectFeedback ? shadows.jade : shadows.rose,
       }),
     ...(locked && !checked && { opacity: 0.75 }),

@@ -85,7 +85,26 @@ interface ValidationResult { isCorrect: boolean; correctOptionId: string; }
 async function fetchRound1Questions(): Promise<Question[]> {
   const response = await fetch('/api/questions');
   const data = await response.json();
-  const apiQuestions = data.questions.map((item: any) => ({
+  const teamId = localStorage.getItem('teamId');
+  let attemptedQuestionIds: string[] = [];
+  
+  if (teamId) {
+    try {
+      const attemptedResponse = await fetch(`/api/questions/${teamId}`);
+      if (attemptedResponse.ok) {
+        const attemptedData = await attemptedResponse.json();
+        attemptedQuestionIds = attemptedData.attemptedQuestions || [];
+      }
+    } catch (error) {
+      console.error('Failed to fetch attempted questions:', error);
+    }
+  }
+  
+  const filteredQuestions = data.questions.filter((item: any) => 
+    !attemptedQuestionIds.includes(item.id)
+  );
+  
+  const apiQuestions = filteredQuestions.map((item: any) => ({
     id: item.id,
     text: item.question,
     options: (item.option || item.options).map((opt: string, index: number) => ({
@@ -208,39 +227,34 @@ const Round1: React.FC = () => {
     (): Question | null => questions[currentIndex] || null,
     [questions, currentIndex]
   );
-
-  // DevTools protection
+  // DevTools protection and text selection prevention
   // useEffect(() => {
   //   const handleContextMenu = (e: MouseEvent) => e.preventDefault();
     
   //   const handleKeyDown = (e: KeyboardEvent) => {
+  //     // Prevent F12, Ctrl+Shift+I/J/C, Ctrl+U, Ctrl+A, Ctrl+C
   //     if (
   //       e.key === "F12" ||
   //       (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
-  //       (e.ctrlKey && e.key === "U")
+  //       (e.ctrlKey && (e.key === "U" || e.key === "a" || e.key === "A" || e.key === "c" || e.key === "C"))
   //     ) {
   //       e.preventDefault();
   //     }
   //   };
 
-  //   const detectDevTools = () => {
-  //     const before = new Date();
-  //     debugger;
-  //     const after = new Date();
-  //     if (after.getTime() - before.getTime() > 100) {
-  //       alert("DevTools detected! Please close it.");
-  //       window.location.reload();
-  //     }
-  //   };
+  //   const handleSelectStart = (e: Event) => e.preventDefault();
+  //   const handleDragStart = (e: Event) => e.preventDefault();
 
   //   document.addEventListener("contextmenu", handleContextMenu);
   //   document.addEventListener("keydown", handleKeyDown);
-  //   const interval = setInterval(detectDevTools, 1000);
+  //   document.addEventListener("selectstart", handleSelectStart);
+  //   document.addEventListener("dragstart", handleDragStart);
 
   //   return () => {
   //     document.removeEventListener("contextmenu", handleContextMenu);
   //     document.removeEventListener("keydown", handleKeyDown);
-  //     clearInterval(interval);
+  //     document.removeEventListener("selectstart", handleSelectStart);
+  //     document.removeEventListener("dragstart", handleDragStart);
   //   };
   // }, []);
 
@@ -287,39 +301,16 @@ const Round1: React.FC = () => {
     questionId: string,
     optionId: string
   ): Promise<void> => {
-    // Prevent changing answer if already selected
-    setSelected((prev) => {
-      if (prev[questionId]) return prev;
-      return { ...prev, [questionId]: optionId };
-    });
+    setSelected((prev) => ({
+      ...prev,
+      [questionId]: optionId
+    }));
     
-    // If answer was already selected, don't proceed
-    if (selected[questionId]) return;
-    
-    setPendingValidations((prev) => [...prev, questionId]);
-    try {
-      const question = questions.find(q => q.id === questionId);
-      if (!question) throw new Error("Question not found");
-      
-      // Validate answer locally first
-      const result = await validateAnswerFromServer(question, optionId);
-      setValidatedAnswers((prev) => ({ ...prev, [questionId]: result }));
-      
-    } catch {
-      setValidatedAnswers((prev) => ({
-        ...prev,
-        [questionId]: { isCorrect: false, correctOptionId: questionId + "o1" },
-      }));
-    } finally {
-      setPendingValidations((prev) => prev.filter((id) => id !== questionId));
-    }
   };
 
   const submitAnswerToBackend = async (questionId: string, optionId: string): Promise<void> => {
-    // Extract the index from optionId (e.g., "q1o2" -> index 1)
     const optionIndex = parseInt(optionId.slice(-1)) - 1; // Convert from 1-based to 0-based
     
-    // Get teamId from localStorage
     const teamId = localStorage.getItem('teamId');
     if (!teamId) {
       console.error('Team ID not found in localStorage');
@@ -416,17 +407,13 @@ const Round1: React.FC = () => {
       return () => clearTimeout(t);
     }
   }, [currentQuestion?.id, selected]);
-
   const canGoNext: boolean = (() => {
     if (!currentQuestion) return false;
     if (isCodeQuestion(currentQuestion)) {
       return Boolean(selected[currentQuestion.id]) && currentIndex < totalQuestions - 1;
     }
-    return (
-      Boolean(selected[currentQuestion.id]) &&
-      !pendingValidations.includes(currentQuestion.id) &&
-      currentIndex < totalQuestions - 1
-    );
+    // Remove validation dependency - just check if option is selected
+    return Boolean(selected[currentQuestion.id]) && currentIndex < totalQuestions - 1;
   })();
   const goNext = (): void => {
     if (canGoNext) {
@@ -437,9 +424,6 @@ const Round1: React.FC = () => {
       setCurrentIndex((i) => i + 1);
     }
   };
-  const goPrev = (): void => {
-    if (currentIndex > 0) setCurrentIndex((i) => i - 1);
-  };
 
   const calculateScore = (): number => {
     if (questions.length === 0) return 0;
@@ -449,18 +433,16 @@ const Round1: React.FC = () => {
       return acc;
     }, 0);
     return correctCount * POINTS_PER_CORRECT;
-  };
-  const finishQuiz = async (): Promise<void> => {
+  };  const finishQuiz = async (): Promise<void> => {
     // Submit the last answer before finishing
     if (currentQuestion && currentSelectedId) {
       await submitAnswerToBackend(currentQuestion.id, currentSelectedId);
     }
     
-    const computed = calculateScore();
-    setFinalScore(computed);
+    // Remove score calculation and just finish
     setSubmitted(true);
     const res = await submitRound1Score({
-      score: computed,
+      score: 0, // Backend will calculate actual score
       total: totalQuestions * POINTS_PER_CORRECT,
       round: 1,
     });
@@ -468,21 +450,13 @@ const Round1: React.FC = () => {
   };
 
   const progressPct: number =
-    totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0;
-
-  const currentSelectedId: string | null = currentQuestion
+    totalQuestions > 0 ? ((currentIndex + 1) / totalQuestions) * 100 : 0;  const currentSelectedId: string | null = currentQuestion
     ? selected[currentQuestion.id] || null
     : null;
-  const currentValidated = currentQuestion
-    ? validatedAnswers[currentQuestion.id]
-    : null;
-  const isLocked: boolean = Boolean(currentSelectedId);
-  const isPending = currentQuestion
-    ? pendingValidations.includes(currentQuestion.id)
-    : false;
-  const isCorrectFeedback = Boolean(
-    currentSelectedId && isLocked && currentValidated?.isCorrect
-  );
+  const currentValidated = null; // Remove validation feedback
+  const isLocked: boolean = false; // Never lock options - always allow changes
+  const isPending = false; // Remove pending state
+  const isCorrectFeedback = false; // Remove correct feedback
   return (
     <div style={style.page}>
       
@@ -560,7 +534,15 @@ const Round1: React.FC = () => {
                   />
                 ) : (
                   <>
-                    <h2 style={style.questionText}>{currentQuestion.text}</h2>
+                    <h2 style={{
+                      ...style.questionText,
+                      userSelect: "none",
+                      WebkitUserSelect: "none",
+                      MozUserSelect: "none",
+                      msUserSelect: "none",
+                      WebkitTouchCallout: "none",
+                      WebkitTapHighlightColor: "transparent",
+                    }}>{currentQuestion.text}</h2>
                     <div style={{ fontSize: 14, color: "#ffd166", marginBottom: 10, marginTop: -15, textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}>
                       Difficulty: {currentQuestion.difficulty}
                     </div>
@@ -611,13 +593,6 @@ const Round1: React.FC = () => {
 
             {!showVideoGate && (
               <div style={style.controls}>
-                <button
-                  style={style.btn("ghost")}
-                  onClick={goPrev}
-                  disabled={currentIndex === 0}
-                >
-                  ← Previous
-                </button>
 
                 {currentIndex < totalQuestions - 1 ? (
                   <button
@@ -627,19 +602,10 @@ const Round1: React.FC = () => {
                   >
                     Next →
                   </button>
-                ) : (
-                  <button
+                ) : (                  <button
                     style={style.btn("primary")}
                     onClick={finishQuiz}
-                    disabled={
-                      !!(
-                        !currentSelectedId ||
-                        isPending ||
-                        (isCodeQuestion(currentQuestion) &&
-                          currentQuestion &&
-                          !validatedAnswers[currentQuestion.id])
-                      )
-                    }
+                    disabled={!currentSelectedId}
                     aria-label="Finish quiz"
                   >
                     Finish
