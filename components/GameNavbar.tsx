@@ -69,9 +69,7 @@ export default function GameNavbar({ children, className = "min-h-screen flex fl
       <div className="absolute top-6 right-6 flex items-center space-x-4 z-50">
         <div className="text-right">
           <div className="text-yellow-200 font-['Cinzel_Decorative'] text-lg">{teamInfo.name}</div>
-          <div className={`text-center text-sm px-3 py-1 rounded-full bg-gradient-to-r ${houseInfo.color} text-white font-semibold`}>
-            House {houseInfo.name}
-          </div>
+         
         </div>
         <button 
           onClick={handleLogout}

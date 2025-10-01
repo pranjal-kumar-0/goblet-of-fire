@@ -6,7 +6,7 @@ export async function POST() {
   try {
     const now = new Date();
     const startTime = now.toISOString();
-    const endTime = new Date(now.getTime() + 15.5 * 60 * 1000).toISOString(); // +15 min
+    const endTime = new Date(now.getTime() + 20.5 * 60 * 1000).toISOString(); // +15 min
 
     await dbAdmin.collection("game_rounds").doc("round1").set({
       start_time: startTime,
