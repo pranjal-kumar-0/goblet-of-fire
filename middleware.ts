@@ -37,12 +37,49 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/error", request.url));
     }
   }
+    if (url.pathname.startsWith("/game/")) {
+      const statusDoc = await dbAdmin.collection("gameStatus").doc("current").get();
+
+      if (!statusDoc.exists) {
+        console.log("Game status not found");
+        return NextResponse.redirect(new URL("/no-game", request.url));
+      }
+
+      const statusData = statusDoc.data();
+
+      // Example: if user visits /game/bingo-time → check Round2 is true
+      if (url.pathname.includes("bingo-time") && !statusData?.Round2) {
+        console.log("Bingo-time blocked (Round2 is false)");
+        const url = request.nextUrl.clone();
+            url.pathname = '/404'; 
+            return NextResponse.rewrite(url);
+
+      }
+      if (url.pathname.includes("find-the-trophy") && !statusData?.Round3) {
+        console.log("Find-the-trophy blocked (Round3 is false)");
+        const url = request.nextUrl.clone();
+            url.pathname = '/404'; 
+            return NextResponse.rewrite(url);
+
+      }
+
+
+      console.log("Frontend route allowed");
+      return NextResponse.next();
+    }
   return NextResponse.next();
 }
 
 
 
+// export const config = {
+//     matcher: '/api/answer/:path*',
+//     runtime: 'nodejs',
+// }
 export const config = {
-    matcher: '/api/answer/:path*',
-    runtime: 'nodejs',
-}
+  matcher: [
+    "/api/answer/:path*",
+    "/game/:path*",
+  ],
+  runtime: "nodejs",
+};
